@@ -6,6 +6,7 @@ app session via the binary cookie jar, fetches conversations through the
 backend API, writes a bundle compatible with import_chatgpt_export_corpus,
 then delegates to the existing ChatGPT import adapter for corpus generation.
 """
+
 from __future__ import annotations
 
 import tempfile
@@ -53,7 +54,9 @@ def patch_contract_for_local_session(
     corpus_dir = output_root / "corpus"
     contract_path = corpus_dir / "contract.json"
     contract = load_json(contract_path, default={}) or {}
-    source_snapshot = build_source_snapshot(cookie_jar.parent, "chatgpt-local-session", "local-session")
+    source_snapshot = build_source_snapshot(
+        cookie_jar.parent, "chatgpt-local-session", "local-session"
+    )
     contract.update(
         {
             "adapter_type": "chatgpt-local-session",
@@ -155,9 +158,7 @@ def import_chatgpt_local_session_corpus(
                 "cookie_jar": str(cookie_jar),
                 "account_id": discovery.get("account_id"),
                 "account_email": discovery.get("account_email"),
-                "detail_failure_count": len(
-                    bundle.get("conversation_detail_failures") or []
-                ),
+                "detail_failure_count": len(bundle.get("conversation_detail_failures") or []),
                 "fetched_count": bundle.get("fetched_count", 0),
                 "reused_count": bundle.get("reused_count", 0),
                 "total_count": bundle.get("total_count", 0),
@@ -179,19 +180,13 @@ def import_chatgpt_local_session_corpus(
         report=bundle.get("acquisition_report") or {},
     )
 
-    patch_contract_for_local_session(
-        output_root, cookie_jar=cookie_jar, discovery=discovery
-    )
-    rewrite_readme_for_local_session(
-        output_root, cookie_jar=cookie_jar, bundle=bundle
-    )
+    patch_contract_for_local_session(output_root, cookie_jar=cookie_jar, discovery=discovery)
+    rewrite_readme_for_local_session(output_root, cookie_jar=cookie_jar, bundle=bundle)
 
     result["source_type"] = "chatgpt-local-session"
     result["cookie_jar"] = str(cookie_jar)
     result["discovery_path"] = str(output_root / "source" / "local-session-discovery.json")
-    result["detail_failure_count"] = len(
-        bundle.get("conversation_detail_failures") or []
-    )
+    result["detail_failure_count"] = len(bundle.get("conversation_detail_failures") or [])
     result["acquisition_report"] = bundle.get("acquisition_report")
     result["scope_preflight"] = preflight
     return result

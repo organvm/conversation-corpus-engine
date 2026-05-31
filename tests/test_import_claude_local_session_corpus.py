@@ -176,7 +176,9 @@ def test_import_claude_local_session_corpus_writes_metadata_and_returns_summary(
                         "created_at": "2026-03-25T00:00:00Z",
                         "updated_at": "2026-03-25T00:00:00Z",
                         "text": "Summarize the local session import.",
-                        "content": [{"type": "text", "text": "Summarize the local session import."}],
+                        "content": [
+                            {"type": "text", "text": "Summarize the local session import."}
+                        ],
                         "attachments": [],
                         "files": [],
                     },
@@ -200,9 +202,7 @@ def test_import_claude_local_session_corpus_writes_metadata_and_returns_summary(
         ],
     }
     monkeypatch.setattr(module, "discover_claude_local_session", lambda root: discovery)
-    monkeypatch.setattr(
-        module, "fetch_claude_local_session_bundle", lambda root, **kwargs: bundle
-    )
+    monkeypatch.setattr(module, "fetch_claude_local_session_bundle", lambda root, **kwargs: bundle)
 
     result = module.import_claude_local_session_corpus(local_root, output_root)
 

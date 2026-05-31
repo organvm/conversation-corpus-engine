@@ -165,9 +165,7 @@ def build_parser() -> argparse.ArgumentParser:
     migration_review_ids = migration_sub.add_parser(
         "review-ids", help="Migrate review IDs to fingerprinted format"
     )
-    migration_review_ids.add_argument(
-        "--project-root", type=Path, default=default_project_root()
-    )
+    migration_review_ids.add_argument("--project-root", type=Path, default=default_project_root())
     migration_review_ids.add_argument("--dry-run", action="store_true")
     migration_review_ids.add_argument("--json", action="store_true")
 
@@ -891,9 +889,7 @@ def main() -> None:
         return
 
     if args.group == "project" and args.action == "sync":
-        payload = sync_chatgpt_projects(
-            args.project_root, batch_size=args.batch_size
-        )
+        payload = sync_chatgpt_projects(args.project_root, batch_size=args.batch_size)
         if args.json:
             print(json.dumps(payload, indent=2))
             return

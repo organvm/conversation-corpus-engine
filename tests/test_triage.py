@@ -195,9 +195,9 @@ class EntityAliasReviewCampaignTests(unittest.TestCase):
                 ),
                 patch(
                     "conversation_corpus_engine.triage.sample_entity_alias_review_assist_groups",
-                    side_effect=lambda payload, sample_groups, sample_batches=None, batch_offset=0: sample_payloads[
-                        str(payload["scenario_label"])
-                    ],
+                    side_effect=lambda payload, sample_groups, sample_batches=None, batch_offset=0: (
+                        sample_payloads[str(payload["scenario_label"])]
+                    ),
                 ),
             ):
                 payload = build_entity_alias_review_campaign(
@@ -216,7 +216,9 @@ class EntityAliasReviewCampaignTests(unittest.TestCase):
         self.assertEqual(payload["assistant_confidence_counts"], {"high": 1, "medium": 1})
         self.assertEqual(payload["bucket_counts"], {"likely-reject": 1, "needs-context": 1})
         self.assertIsNone(payload["proposal_reject_precision"])
-        self.assertEqual(payload["scenarios"][0]["proposal_payload"]["assistant_outcome_counts"], {"reject": 1})
+        self.assertEqual(
+            payload["scenarios"][0]["proposal_payload"]["assistant_outcome_counts"], {"reject": 1}
+        )
         self.assertEqual(
             payload["scenarios"][1]["proposal_payload"]["assistant_outcome_counts"],
             {"needs-context": 1},
@@ -270,7 +272,9 @@ class EntityAliasReviewCampaignTests(unittest.TestCase):
         self.assertIn("assistant: reject=2", text)
         self.assertIn("sample_artifact: /tmp/sample.md", text)
 
-    def test_write_entity_alias_review_campaign_artifacts_writes_manifest_and_scenarios(self) -> None:
+    def test_write_entity_alias_review_campaign_artifacts_writes_manifest_and_scenarios(
+        self,
+    ) -> None:
         scenario = {
             "label": "alpha",
             "description": "Alpha window",
@@ -302,7 +306,9 @@ class EntityAliasReviewCampaignTests(unittest.TestCase):
                 ),
                 patch(
                     "conversation_corpus_engine.triage.sample_entity_alias_review_assist_groups",
-                    side_effect=lambda payload, sample_groups, sample_batches=None, batch_offset=0: sample_payload,
+                    side_effect=lambda payload, sample_groups, sample_batches=None, batch_offset=0: (
+                        sample_payload
+                    ),
                 ),
             ):
                 payload = build_entity_alias_review_campaign(
@@ -329,7 +335,9 @@ class EntityAliasReviewCampaignTests(unittest.TestCase):
             self.assertTrue(Path(scenario_artifacts["sample"]["session_markdown_path"]).exists())
             self.assertTrue(Path(scenario_artifacts["summary"]["session_markdown_path"]).exists())
             self.assertTrue(Path(scenario_artifacts["proposal"]["session_markdown_path"]).exists())
-            self.assertTrue(Path(scenario_artifacts["comparison"]["session_markdown_path"]).exists())
+            self.assertTrue(
+                Path(scenario_artifacts["comparison"]["session_markdown_path"]).exists()
+            )
             latest_markdown = Path(artifacts["latest_markdown_path"]).read_text(encoding="utf-8")
             self.assertIn("Entity-alias review campaign", latest_markdown)
             self.assertIn("sample_artifact:", latest_markdown)
@@ -377,7 +385,7 @@ class EntityAliasReviewCampaignLedgerTests(unittest.TestCase):
                             "assistant_confidence": assistant_confidence,
                             "assistant_rationale": ["fixture rationale"],
                         }
-                    ]
+                    ],
                 }
             ),
             encoding="utf-8",
@@ -396,22 +404,36 @@ class EntityAliasReviewCampaignLedgerTests(unittest.TestCase):
                         "adjudicated_count": 1 if manual_outcome else 0,
                         "comparable_count": 1 if manual_outcome else 0,
                         "agreement_count": 1 if manual_outcome == assistant_outcome else 0,
-                        "disagreement_count": 0 if manual_outcome == assistant_outcome else (1 if manual_outcome else 0),
+                        "disagreement_count": 0
+                        if manual_outcome == assistant_outcome
+                        else (1 if manual_outcome else 0),
                         "proposal_reject_count": 1 if assistant_outcome == "reject" else 0,
                         "proposal_keep_count": 1 if assistant_outcome == "keep" else 0,
-                        "proposal_needs_context_count": 1 if assistant_outcome == "needs-context" else 0,
-                        "proposal_reject_hits": 1 if manual_outcome == "reject" and assistant_outcome == "reject" else 0,
-                        "proposal_reject_false_positives": 1 if manual_outcome == "keep" and assistant_outcome == "reject" else 0,
+                        "proposal_needs_context_count": 1
+                        if assistant_outcome == "needs-context"
+                        else 0,
+                        "proposal_reject_hits": 1
+                        if manual_outcome == "reject" and assistant_outcome == "reject"
+                        else 0,
+                        "proposal_reject_false_positives": 1
+                        if manual_outcome == "keep" and assistant_outcome == "reject"
+                        else 0,
                         "proposal_reject_precision": comparison_precision,
                         "confidence_summary": {
                             assistant_confidence: {
                                 "count": 1,
                                 "adjudicated_count": 1 if manual_outcome else 0,
                                 "agreement_count": 1 if manual_outcome == assistant_outcome else 0,
-                                "disagreement_count": 0 if manual_outcome == assistant_outcome else (1 if manual_outcome else 0),
+                                "disagreement_count": 0
+                                if manual_outcome == assistant_outcome
+                                else (1 if manual_outcome else 0),
                                 "proposal_reject_count": 1 if assistant_outcome == "reject" else 0,
-                                "proposal_reject_hits": 1 if manual_outcome == "reject" and assistant_outcome == "reject" else 0,
-                                "proposal_reject_false_positives": 1 if manual_outcome == "keep" and assistant_outcome == "reject" else 0,
+                                "proposal_reject_hits": 1
+                                if manual_outcome == "reject" and assistant_outcome == "reject"
+                                else 0,
+                                "proposal_reject_false_positives": 1
+                                if manual_outcome == "keep" and assistant_outcome == "reject"
+                                else 0,
                                 "reject_precision": comparison_precision,
                             }
                         },
@@ -446,7 +468,8 @@ class EntityAliasReviewCampaignLedgerTests(unittest.TestCase):
                                 "artifacts": {
                                     "sample": {
                                         "session_markdown_path": str(
-                                            reports_root / "review-assist-sample-2026-03-25-123012-122496-likely_front.md"
+                                            reports_root
+                                            / "review-assist-sample-2026-03-25-123012-122496-likely_front.md"
                                         )
                                     }
                                 },
@@ -498,7 +521,9 @@ class EntityAliasReviewCampaignLedgerTests(unittest.TestCase):
             self.assertEqual(payload["proposal_reject_false_positives"], 0)
             self.assertEqual(payload["proposal_reject_precision"], 1.0)
 
-    def test_build_entity_alias_review_campaign_index_matches_artifacts_by_source_paths(self) -> None:
+    def test_build_entity_alias_review_campaign_index_matches_artifacts_by_source_paths(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
             reports_root = project_root / "reports"
@@ -604,7 +629,10 @@ class EntityAliasReviewCampaignLedgerTests(unittest.TestCase):
             self.assertEqual(payload["current_adjudicated"], 0)
             self.assertEqual(payload["remaining_to_threshold"], 5)
             self.assertGreaterEqual(payload["candidate_packet_count"], 2)
-            self.assertIn(payload["packets"][0]["priority_bucket"], {"unlock-threshold-now", "precision-ready"})
+            self.assertIn(
+                payload["packets"][0]["priority_bucket"],
+                {"unlock-threshold-now", "precision-ready"},
+            )
 
     def test_build_entity_alias_review_apply_plan_stays_disabled_and_exposes_contract(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -710,14 +738,23 @@ class EntityAliasReviewCampaignLedgerTests(unittest.TestCase):
             "rollup": {"adjudicated_count": 1, "proposal_reject_precision": 1.0},
         }
 
-        self.assertIn("Entity-alias review campaign index", render_entity_alias_review_campaign_index(index_payload))
-        self.assertIn("Entity-alias review rollup", render_entity_alias_review_rollup(rollup_payload))
+        self.assertIn(
+            "Entity-alias review campaign index",
+            render_entity_alias_review_campaign_index(index_payload),
+        )
+        self.assertIn(
+            "Entity-alias review rollup", render_entity_alias_review_rollup(rollup_payload)
+        )
         self.assertIn("Entity-alias reject stage", render_entity_alias_reject_stage(stage_payload))
 
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
-            index_artifacts = write_entity_alias_review_campaign_index_artifacts(project_root, index_payload)
-            rollup_artifacts = write_entity_alias_review_rollup_artifacts(project_root, rollup_payload)
+            index_artifacts = write_entity_alias_review_campaign_index_artifacts(
+                project_root, index_payload
+            )
+            rollup_artifacts = write_entity_alias_review_rollup_artifacts(
+                project_root, rollup_payload
+            )
             stage_artifacts = write_entity_alias_reject_stage_artifacts(project_root, stage_payload)
 
             self.assertTrue(Path(index_artifacts["latest_markdown_path"]).exists())
@@ -736,7 +773,15 @@ class EntityAliasReviewCampaignLedgerTests(unittest.TestCase):
             "pending_count": 1,
             "warnings": [{"sample_index": 1, "type": "missing-bucket", "message": "fixture"}],
             "errors": [],
-            "samples": [{"sample_index": 1, "anchor": "chapters", "bucket": "likely-reject", "manual_outcome": "", "review_ids": ["review-1"]}],
+            "samples": [
+                {
+                    "sample_index": 1,
+                    "anchor": "chapters",
+                    "bucket": "likely-reject",
+                    "manual_outcome": "",
+                    "review_ids": ["review-1"],
+                }
+            ],
         }
         scoreboard_payload = {
             "project_root": "/tmp/project",
@@ -776,15 +821,30 @@ class EntityAliasReviewCampaignLedgerTests(unittest.TestCase):
             },
         }
 
-        self.assertIn("Entity-alias review packet hydration", render_entity_alias_review_packet_hydration(hydration_payload))
-        self.assertIn("Entity-alias review completion scoreboard", render_entity_alias_review_scoreboard(scoreboard_payload))
-        self.assertIn("Entity-alias review apply plan", render_entity_alias_review_apply_plan(apply_plan_payload))
+        self.assertIn(
+            "Entity-alias review packet hydration",
+            render_entity_alias_review_packet_hydration(hydration_payload),
+        )
+        self.assertIn(
+            "Entity-alias review completion scoreboard",
+            render_entity_alias_review_scoreboard(scoreboard_payload),
+        )
+        self.assertIn(
+            "Entity-alias review apply plan",
+            render_entity_alias_review_apply_plan(apply_plan_payload),
+        )
 
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
-            hydration_artifacts = write_entity_alias_review_packet_hydration_artifacts(project_root, hydration_payload)
-            scoreboard_artifacts = write_entity_alias_review_scoreboard_artifacts(project_root, scoreboard_payload)
-            apply_plan_artifacts = write_entity_alias_review_apply_plan_artifacts(project_root, apply_plan_payload)
+            hydration_artifacts = write_entity_alias_review_packet_hydration_artifacts(
+                project_root, hydration_payload
+            )
+            scoreboard_artifacts = write_entity_alias_review_scoreboard_artifacts(
+                project_root, scoreboard_payload
+            )
+            apply_plan_artifacts = write_entity_alias_review_apply_plan_artifacts(
+                project_root, apply_plan_payload
+            )
 
             self.assertTrue(Path(hydration_artifacts["latest_markdown_path"]).exists())
             self.assertTrue(Path(scoreboard_artifacts["latest_markdown_path"]).exists())
@@ -1153,7 +1213,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
             self.assertEqual(payload["relation_counts"]["partial-overlap"], 1)
             self.assertEqual(payload["batches"][0]["anchors"], ["apps"])
 
-    def test_build_entity_alias_review_assist_applies_relation_source_and_anchor_filters(self) -> None:
+    def test_build_entity_alias_review_assist_applies_relation_source_and_anchor_filters(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
             state_dir = project_root / "state"
@@ -1185,7 +1247,10 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                         "review_type": "entity-alias",
                         "status": "open",
                         "title": "Data Pipeline <> Pipeline Orchestration",
-                        "subject_ids": ["c:entity-data-pipeline", "d:entity-pipeline-orchestration"],
+                        "subject_ids": [
+                            "c:entity-data-pipeline",
+                            "d:entity-pipeline-orchestration",
+                        ],
                         "suggested_canonical_subject": "data-pipeline",
                         "score": 0.74,
                         "source_corpora": ["c", "d"],
@@ -1269,7 +1334,10 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
         self.assertIn("bucket: mixed-review", text)
         self.assertIn("flags: has-low-specificity-labels", text)
         self.assertIn("example: Apps <> Websites [disjoint]", text)
-        self.assertIn("review: Verify labels are not headings, placeholders, fragments, or extraction residue.", text)
+        self.assertIn(
+            "review: Verify labels are not headings, placeholders, fragments, or extraction residue.",
+            text,
+        )
 
     def test_select_entity_alias_review_assist_batch_reduces_payload_to_single_batch(self) -> None:
         payload = {
@@ -1288,24 +1356,26 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                     "anchor": "apps",
                     "item_count": 2,
                     "max_score": 1.0,
-                        "relation_counts": {"disjoint": 2},
-                        "source_pair_counts": {"a <> b": 2},
-                        "labels": ["Apps", "Websites"],
-                        "review_bucket": "needs-context",
-                        "signal_flags": ["has-high-score-disjoint-pairs", "all-zero-overlap"],
-                        "signal_counts": {
-                            "disjoint_count": 2,
-                            "zero_overlap_count": 2,
-                            "high_score_count": 2,
-                            "low_specificity_entry_count": 0,
-                        },
-                        "checklist": ["Inspect the highest-scoring pair before rejecting; upstream signal is stronger than lexical overlap."],
-                        "example_review_ids": ["review-1", "review-2"],
-                        "items": [
-                            {
-                                "review_id": "review-1",
-                                "title": "Apps <> Websites",
-                                "relation": "disjoint",
+                    "relation_counts": {"disjoint": 2},
+                    "source_pair_counts": {"a <> b": 2},
+                    "labels": ["Apps", "Websites"],
+                    "review_bucket": "needs-context",
+                    "signal_flags": ["has-high-score-disjoint-pairs", "all-zero-overlap"],
+                    "signal_counts": {
+                        "disjoint_count": 2,
+                        "zero_overlap_count": 2,
+                        "high_score_count": 2,
+                        "low_specificity_entry_count": 0,
+                    },
+                    "checklist": [
+                        "Inspect the highest-scoring pair before rejecting; upstream signal is stronger than lexical overlap."
+                    ],
+                    "example_review_ids": ["review-1", "review-2"],
+                    "items": [
+                        {
+                            "review_id": "review-1",
+                            "title": "Apps <> Websites",
+                            "relation": "disjoint",
                             "score": 1.0,
                             "priority": "high",
                             "source_pair": "a <> b",
@@ -1324,24 +1394,26 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                     "anchor": "data pipeline",
                     "item_count": 1,
                     "max_score": 0.7,
-                        "relation_counts": {"disjoint": 1},
-                        "source_pair_counts": {"a <> b": 1},
-                        "labels": ["Data Pipeline", "Workflow"],
-                        "review_bucket": "likely-reject",
-                        "signal_flags": ["all-zero-overlap"],
-                        "signal_counts": {
-                            "disjoint_count": 1,
-                            "zero_overlap_count": 1,
-                            "high_score_count": 0,
-                            "low_specificity_entry_count": 0,
-                        },
-                        "checklist": ["Reject unless external context ties these labels to the same entity."],
-                        "example_review_ids": ["review-3"],
-                        "items": [
-                            {
-                                "review_id": "review-3",
-                                "title": "Data Pipeline <> Workflow",
-                                "relation": "disjoint",
+                    "relation_counts": {"disjoint": 1},
+                    "source_pair_counts": {"a <> b": 1},
+                    "labels": ["Data Pipeline", "Workflow"],
+                    "review_bucket": "likely-reject",
+                    "signal_flags": ["all-zero-overlap"],
+                    "signal_counts": {
+                        "disjoint_count": 1,
+                        "zero_overlap_count": 1,
+                        "high_score_count": 0,
+                        "low_specificity_entry_count": 0,
+                    },
+                    "checklist": [
+                        "Reject unless external context ties these labels to the same entity."
+                    ],
+                    "example_review_ids": ["review-3"],
+                    "items": [
+                        {
+                            "review_id": "review-3",
+                            "title": "Data Pipeline <> Workflow",
+                            "relation": "disjoint",
                             "score": 0.7,
                             "priority": "high",
                             "source_pair": "a <> b",
@@ -1352,24 +1424,26 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                     "anchor": "care",
                     "item_count": 1,
                     "max_score": 0.6,
-                        "relation_counts": {"disjoint": 1},
-                        "source_pair_counts": {"a <> b": 1},
-                        "labels": ["Care", "Dog"],
-                        "review_bucket": "likely-reject",
-                        "signal_flags": ["all-zero-overlap"],
-                        "signal_counts": {
-                            "disjoint_count": 1,
-                            "zero_overlap_count": 1,
-                            "high_score_count": 0,
-                            "low_specificity_entry_count": 0,
-                        },
-                        "checklist": ["Reject unless external context ties these labels to the same entity."],
-                        "example_review_ids": ["review-4"],
-                        "items": [
-                            {
-                                "review_id": "review-4",
-                                "title": "Care <> Dog",
-                                "relation": "disjoint",
+                    "relation_counts": {"disjoint": 1},
+                    "source_pair_counts": {"a <> b": 1},
+                    "labels": ["Care", "Dog"],
+                    "review_bucket": "likely-reject",
+                    "signal_flags": ["all-zero-overlap"],
+                    "signal_counts": {
+                        "disjoint_count": 1,
+                        "zero_overlap_count": 1,
+                        "high_score_count": 0,
+                        "low_specificity_entry_count": 0,
+                    },
+                    "checklist": [
+                        "Reject unless external context ties these labels to the same entity."
+                    ],
+                    "example_review_ids": ["review-4"],
+                    "items": [
+                        {
+                            "review_id": "review-4",
+                            "title": "Care <> Dog",
+                            "relation": "disjoint",
                             "score": 0.6,
                             "priority": "medium",
                             "source_pair": "a <> b",
@@ -1441,7 +1515,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                     "review_bucket": "needs-context",
                     "signal_flags": ["has-high-score-disjoint-pairs"],
                     "signal_counts": {"disjoint_count": 2},
-                    "checklist": ["Inspect the highest-scoring pair before rejecting; upstream signal is stronger than lexical overlap."],
+                    "checklist": [
+                        "Inspect the highest-scoring pair before rejecting; upstream signal is stronger than lexical overlap."
+                    ],
                     "example_review_ids": ["review-1"],
                     "items": [
                         {
@@ -1472,7 +1548,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                     "review_bucket": "likely-reject",
                     "signal_flags": ["all-zero-overlap"],
                     "signal_counts": {"disjoint_count": 2},
-                    "checklist": ["Reject unless external context ties these labels to the same entity."],
+                    "checklist": [
+                        "Reject unless external context ties these labels to the same entity."
+                    ],
                     "example_review_ids": ["review-3"],
                     "items": [
                         {
@@ -1503,7 +1581,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                     "review_bucket": "likely-reject",
                     "signal_flags": ["all-zero-overlap", "has-low-specificity-labels"],
                     "signal_counts": {"disjoint_count": 2},
-                    "checklist": ["Reject unless external context ties these labels to the same entity."],
+                    "checklist": [
+                        "Reject unless external context ties these labels to the same entity."
+                    ],
                     "example_review_ids": ["review-5"],
                     "items": [
                         {
@@ -1585,7 +1665,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                             "review_bucket": "likely-reject",
                             "signal_flags": ["all-zero-overlap"],
                             "signal_counts": {"disjoint_count": 2},
-                            "checklist": ["Reject unless external context ties these labels to the same entity."],
+                            "checklist": [
+                                "Reject unless external context ties these labels to the same entity."
+                            ],
                             "example_review_ids": ["review-1"],
                             "items": [
                                 {
@@ -1608,7 +1690,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                             "review_bucket": "likely-reject",
                             "signal_flags": ["all-zero-overlap"],
                             "signal_counts": {"disjoint_count": 2},
-                            "checklist": ["Reject unless external context ties these labels to the same entity."],
+                            "checklist": [
+                                "Reject unless external context ties these labels to the same entity."
+                            ],
                             "example_review_ids": ["review-2"],
                             "items": [
                                 {
@@ -1639,7 +1723,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                             "review_bucket": "likely-reject",
                             "signal_flags": ["all-zero-overlap", "has-low-specificity-labels"],
                             "signal_counts": {"disjoint_count": 2},
-                            "checklist": ["Reject unless external context ties these labels to the same entity."],
+                            "checklist": [
+                                "Reject unless external context ties these labels to the same entity."
+                            ],
                             "example_review_ids": ["review-3"],
                             "items": [
                                 {
@@ -1662,7 +1748,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                             "review_bucket": "likely-reject",
                             "signal_flags": ["all-zero-overlap", "has-low-specificity-labels"],
                             "signal_counts": {"disjoint_count": 2},
-                            "checklist": ["Reject unless external context ties these labels to the same entity."],
+                            "checklist": [
+                                "Reject unless external context ties these labels to the same entity."
+                            ],
                             "example_review_ids": ["review-4"],
                             "items": [
                                 {
@@ -1691,7 +1779,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
         self.assertEqual(sampled["sample"]["selected_group_count"], 3)
         self.assertEqual(sampled["sample"]["candidate_group_count"], 4)
         self.assertEqual(sampled["sample"]["candidate_batch_count"], 2)
-        self.assertEqual([group["anchor"] for group in sampled["groups"]], ["care", "chapters", "extension"])
+        self.assertEqual(
+            [group["anchor"] for group in sampled["groups"]], ["care", "chapters", "extension"]
+        )
         self.assertEqual(sampled["batches"][0]["anchors"], ["care", "extension"])
         self.assertEqual(sampled["batches"][1]["anchors"], ["chapters"])
 
@@ -1722,9 +1812,20 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                             "review_bucket": "likely-reject",
                             "signal_flags": ["all-zero-overlap"],
                             "signal_counts": {"disjoint_count": 1},
-                            "checklist": ["Reject unless external context ties these labels to the same entity."],
+                            "checklist": [
+                                "Reject unless external context ties these labels to the same entity."
+                            ],
                             "example_review_ids": ["review-a"],
-                            "items": [{"review_id": "review-a", "title": "A <> Z", "relation": "disjoint", "score": 0.9, "priority": "medium", "source_pair": "x <> y"}],
+                            "items": [
+                                {
+                                    "review_id": "review-a",
+                                    "title": "A <> Z",
+                                    "relation": "disjoint",
+                                    "score": 0.9,
+                                    "priority": "medium",
+                                    "source_pair": "x <> y",
+                                }
+                            ],
                         },
                         {
                             "anchor": "b",
@@ -1736,9 +1837,20 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                             "review_bucket": "likely-reject",
                             "signal_flags": ["all-zero-overlap"],
                             "signal_counts": {"disjoint_count": 1},
-                            "checklist": ["Reject unless external context ties these labels to the same entity."],
+                            "checklist": [
+                                "Reject unless external context ties these labels to the same entity."
+                            ],
                             "example_review_ids": ["review-b"],
-                            "items": [{"review_id": "review-b", "title": "B <> Z", "relation": "disjoint", "score": 0.8, "priority": "medium", "source_pair": "x <> y"}],
+                            "items": [
+                                {
+                                    "review_id": "review-b",
+                                    "title": "B <> Z",
+                                    "relation": "disjoint",
+                                    "score": 0.8,
+                                    "priority": "medium",
+                                    "source_pair": "x <> y",
+                                }
+                            ],
                         },
                     ],
                 },
@@ -1758,9 +1870,20 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                             "review_bucket": "likely-reject",
                             "signal_flags": ["all-zero-overlap"],
                             "signal_counts": {"disjoint_count": 1},
-                            "checklist": ["Reject unless external context ties these labels to the same entity."],
+                            "checklist": [
+                                "Reject unless external context ties these labels to the same entity."
+                            ],
                             "example_review_ids": ["review-c"],
-                            "items": [{"review_id": "review-c", "title": "C <> Z", "relation": "disjoint", "score": 0.7, "priority": "medium", "source_pair": "x <> y"}],
+                            "items": [
+                                {
+                                    "review_id": "review-c",
+                                    "title": "C <> Z",
+                                    "relation": "disjoint",
+                                    "score": 0.7,
+                                    "priority": "medium",
+                                    "source_pair": "x <> y",
+                                }
+                            ],
                         },
                         {
                             "anchor": "d",
@@ -1772,9 +1895,20 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                             "review_bucket": "likely-reject",
                             "signal_flags": ["all-zero-overlap"],
                             "signal_counts": {"disjoint_count": 1},
-                            "checklist": ["Reject unless external context ties these labels to the same entity."],
+                            "checklist": [
+                                "Reject unless external context ties these labels to the same entity."
+                            ],
                             "example_review_ids": ["review-d"],
-                            "items": [{"review_id": "review-d", "title": "D <> Z", "relation": "disjoint", "score": 0.6, "priority": "medium", "source_pair": "x <> y"}],
+                            "items": [
+                                {
+                                    "review_id": "review-d",
+                                    "title": "D <> Z",
+                                    "relation": "disjoint",
+                                    "score": 0.6,
+                                    "priority": "medium",
+                                    "source_pair": "x <> y",
+                                }
+                            ],
                         },
                     ],
                 },
@@ -1794,9 +1928,20 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                             "review_bucket": "likely-reject",
                             "signal_flags": ["all-zero-overlap"],
                             "signal_counts": {"disjoint_count": 1},
-                            "checklist": ["Reject unless external context ties these labels to the same entity."],
+                            "checklist": [
+                                "Reject unless external context ties these labels to the same entity."
+                            ],
                             "example_review_ids": ["review-e"],
-                            "items": [{"review_id": "review-e", "title": "E <> Z", "relation": "disjoint", "score": 0.5, "priority": "medium", "source_pair": "x <> y"}],
+                            "items": [
+                                {
+                                    "review_id": "review-e",
+                                    "title": "E <> Z",
+                                    "relation": "disjoint",
+                                    "score": 0.5,
+                                    "priority": "medium",
+                                    "source_pair": "x <> y",
+                                }
+                            ],
                         },
                         {
                             "anchor": "f",
@@ -1808,9 +1953,20 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                             "review_bucket": "likely-reject",
                             "signal_flags": ["all-zero-overlap"],
                             "signal_counts": {"disjoint_count": 1},
-                            "checklist": ["Reject unless external context ties these labels to the same entity."],
+                            "checklist": [
+                                "Reject unless external context ties these labels to the same entity."
+                            ],
                             "example_review_ids": ["review-f"],
-                            "items": [{"review_id": "review-f", "title": "F <> Z", "relation": "disjoint", "score": 0.4, "priority": "medium", "source_pair": "x <> y"}],
+                            "items": [
+                                {
+                                    "review_id": "review-f",
+                                    "title": "F <> Z",
+                                    "relation": "disjoint",
+                                    "score": 0.4,
+                                    "priority": "medium",
+                                    "source_pair": "x <> y",
+                                }
+                            ],
                         },
                     ],
                 },
@@ -1873,7 +2029,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
 
             artifacts = write_entity_alias_review_assist_artifacts(project_root, payload)
 
-            stored_payload = json.loads(Path(artifacts["latest_json_path"]).read_text(encoding="utf-8"))
+            stored_payload = json.loads(
+                Path(artifacts["latest_json_path"]).read_text(encoding="utf-8")
+            )
             latest_markdown = Path(artifacts["latest_markdown_path"]).read_text(encoding="utf-8")
             dated_markdown = Path(artifacts["report_path"]).read_text(encoding="utf-8")
 
@@ -1916,7 +2074,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                             "high_score_count": 2,
                             "low_specificity_entry_count": 0,
                         },
-                        "checklist": ["Inspect the highest-scoring pair before rejecting; upstream signal is stronger than lexical overlap."],
+                        "checklist": [
+                            "Inspect the highest-scoring pair before rejecting; upstream signal is stronger than lexical overlap."
+                        ],
                         "example_review_ids": ["review-1"],
                         "items": [
                             {
@@ -1959,7 +2119,10 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
             self.assertIn("from 4 filtered / 6 open", markdown)
             self.assertIn("# Entity-alias review checklist: entity-alias-batch-001", checklist)
             self.assertIn("- Bucket: needs-context", checklist)
-            self.assertIn("- Review: Inspect the highest-scoring pair before rejecting; upstream signal is stronger than lexical overlap.", checklist)
+            self.assertIn(
+                "- Review: Inspect the highest-scoring pair before rejecting; upstream signal is stronger than lexical overlap.",
+                checklist,
+            )
 
     def test_render_entity_alias_review_checklist_formats_group_guidance(self) -> None:
         text = render_entity_alias_review_checklist(
@@ -2028,7 +2191,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                                 "score": 0.83,
                             }
                         ],
-                        "checklist": ["Reject unless external context ties these labels to the same entity."],
+                        "checklist": [
+                            "Reject unless external context ties these labels to the same entity."
+                        ],
                     },
                     {
                         "anchor": "von",
@@ -2043,7 +2208,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                                 "score": 0.71,
                             }
                         ],
-                        "checklist": ["Reject unless external context ties these labels to the same entity."],
+                        "checklist": [
+                            "Reject unless external context ties these labels to the same entity."
+                        ],
                     },
                 ],
             }
@@ -2055,7 +2222,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
         self.assertIn("## Sample 1: chapters", text)
         self.assertIn("- Proposed outcome: reject", text)
 
-    def test_write_entity_alias_review_sample_artifacts_writes_latest_and_session_files(self) -> None:
+    def test_write_entity_alias_review_sample_artifacts_writes_latest_and_session_files(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
             payload = {
@@ -2083,7 +2252,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                                 "score": 0.83,
                             }
                         ],
-                        "checklist": ["Reject unless external context ties these labels to the same entity."],
+                        "checklist": [
+                            "Reject unless external context ties these labels to the same entity."
+                        ],
                     }
                 ],
                 "batches": [],
@@ -2230,7 +2401,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
         self.assertIn("- chapters  bucket=likely-reject  proposed=reject  manual=reject", text)
         self.assertIn("notes: clear heading residue", text)
 
-    def test_write_entity_alias_review_sample_summary_artifacts_writes_latest_and_session_files(self) -> None:
+    def test_write_entity_alias_review_sample_summary_artifacts_writes_latest_and_session_files(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
             payload = {
@@ -2349,7 +2522,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
         self.assertIn("rationale: Lexical overlap is absent across the sampled pairs.", text)
         self.assertIn("manual: keep", text)
 
-    def test_write_entity_alias_review_sample_proposal_artifacts_writes_latest_and_session_files(self) -> None:
+    def test_write_entity_alias_review_sample_proposal_artifacts_writes_latest_and_session_files(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
             payload = {
@@ -2385,7 +2560,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
             self.assertIn("Entity-alias review sample proposal", markdown)
             self.assertIn("assistant=reject", markdown)
 
-    def test_compare_entity_alias_review_sample_to_proposal_computes_agreement_metrics(self) -> None:
+    def test_compare_entity_alias_review_sample_to_proposal_computes_agreement_metrics(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
             sample_path = tmp / "sample.md"
@@ -2426,21 +2603,27 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                                 "review_ids": ["review-1", "review-2"],
                                 "assistant_outcome": "reject",
                                 "assistant_confidence": "high",
-                                "assistant_rationale": ["Group is already classified as likely-reject."],
+                                "assistant_rationale": [
+                                    "Group is already classified as likely-reject."
+                                ],
                             },
                             {
                                 "anchor": "extension",
                                 "review_ids": ["review-3"],
                                 "assistant_outcome": "reject",
                                 "assistant_confidence": "high",
-                                "assistant_rationale": ["Lexical overlap is absent across the sampled pairs."],
+                                "assistant_rationale": [
+                                    "Lexical overlap is absent across the sampled pairs."
+                                ],
                             },
                             {
                                 "anchor": "alias",
                                 "review_ids": ["review-4"],
                                 "assistant_outcome": "keep",
                                 "assistant_confidence": "medium",
-                                "assistant_rationale": ["Lexical overlap is strong enough that rejection is not the safe default."],
+                                "assistant_rationale": [
+                                    "Lexical overlap is strong enough that rejection is not the safe default."
+                                ],
                             },
                         ]
                     }
@@ -2463,7 +2646,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
             self.assertEqual(comparison["confidence_summary"]["high"]["reject_precision"], 0.5)
             self.assertEqual(comparison["disagreements"][0]["anchor"], "extension")
 
-    def test_compare_entity_alias_review_sample_to_proposal_leaves_precision_null_without_adjudication(self) -> None:
+    def test_compare_entity_alias_review_sample_to_proposal_leaves_precision_null_without_adjudication(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
             sample_path = tmp / "sample.md"
@@ -2491,7 +2676,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                                 "review_ids": ["review-1"],
                                 "assistant_outcome": "reject",
                                 "assistant_confidence": "high",
-                                "assistant_rationale": ["Group is already classified as likely-reject."],
+                                "assistant_rationale": [
+                                    "Group is already classified as likely-reject."
+                                ],
                             }
                         ]
                     }
@@ -2529,7 +2716,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
                         "assistant_outcome": "reject",
                         "assistant_confidence": "high",
                         "notes": "context overruled lexical mismatch",
-                        "assistant_rationale": ["Lexical overlap is absent across the sampled pairs."],
+                        "assistant_rationale": [
+                            "Lexical overlap is absent across the sampled pairs."
+                        ],
                     }
                 ],
             }
@@ -2541,7 +2730,9 @@ class EntityAliasReviewAssistTests(unittest.TestCase):
         self.assertIn("- extension  manual=keep  assistant=reject  confidence=high", text)
         self.assertIn("notes: context overruled lexical mismatch", text)
 
-    def test_write_entity_alias_review_sample_comparison_artifacts_writes_latest_and_session_files(self) -> None:
+    def test_write_entity_alias_review_sample_comparison_artifacts_writes_latest_and_session_files(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
             payload = {

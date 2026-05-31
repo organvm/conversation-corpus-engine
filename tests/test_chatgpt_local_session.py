@@ -200,7 +200,9 @@ def test_resolve_chatgpt_cookie_jar_validates_existence_and_magic(tmp_path: Path
         module.resolve_chatgpt_cookie_jar(bad)
 
     good = tmp_path / "good.binarycookies"
-    good.write_bytes(build_binary_cookie_jar([{"domain": ".chatgpt.com", "name": "x", "value": "y"}]))
+    good.write_bytes(
+        build_binary_cookie_jar([{"domain": ".chatgpt.com", "name": "x", "value": "y"}])
+    )
     assert module.resolve_chatgpt_cookie_jar(good) == good.resolve()
 
 

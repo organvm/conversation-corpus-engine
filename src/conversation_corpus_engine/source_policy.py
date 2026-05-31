@@ -38,7 +38,9 @@ def normalize_source_policy(payload: dict[str, Any] | None) -> dict[str, Any]:
 
 
 def load_source_policy(project_root: Path, provider: str) -> dict[str, Any]:
-    return normalize_source_policy(load_json(source_policy_path(project_root, provider), default={}))
+    return normalize_source_policy(
+        load_json(source_policy_path(project_root, provider), default={})
+    )
 
 
 def append_source_policy_history(project_root: Path, entry: dict[str, Any]) -> dict[str, Any]:

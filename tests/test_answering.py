@@ -109,9 +109,7 @@ def _seed_answer_corpus(root: Path) -> Path:
                         "canonical_question": "How should alpha governance evolve?",
                     }
                 ],
-                "key_entities": [
-                    {"canonical_label": "Alpha Engine", "entity_type": "concept"}
-                ],
+                "key_entities": [{"canonical_label": "Alpha Engine", "entity_type": "concept"}],
                 "vector_terms": {"registry": 1.0, "governance": 0.85, "ritual": 0.7},
             }
         ],
