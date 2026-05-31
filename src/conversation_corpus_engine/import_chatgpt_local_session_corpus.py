@@ -8,14 +8,12 @@ then delegates to the existing ChatGPT import adapter for corpus generation.
 """
 from __future__ import annotations
 
-import json
 import tempfile
 from pathlib import Path
 from typing import Any
 
 from .answering import load_json, write_json, write_markdown
 from .chatgpt_local_session import (
-    DEFAULT_CHATGPT_COOKIE_JAR,
     discover_chatgpt_local_session,
     fetch_chatgpt_local_session_bundle,
     load_prior_acquisition,

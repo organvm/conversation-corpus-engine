@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -9,8 +8,8 @@ from unittest.mock import patch
 
 from conversation_corpus_engine.triage import (
     _strip_uuid_suffix,
-    build_entity_alias_review_apply_plan,
     build_entity_alias_reject_stage,
+    build_entity_alias_review_apply_plan,
     build_entity_alias_review_assist,
     build_entity_alias_review_campaign,
     build_entity_alias_review_campaign_index,
@@ -24,35 +23,35 @@ from conversation_corpus_engine.triage import (
     hydrate_entity_alias_review_sample_packet,
     parse_entity_alias_review_sample_markdown,
     propose_entity_alias_review_sample,
-    render_entity_alias_review_apply_plan,
     render_entity_alias_reject_stage,
-    report_stamp,
+    render_entity_alias_review_apply_plan,
+    render_entity_alias_review_assist,
     render_entity_alias_review_campaign,
     render_entity_alias_review_campaign_index,
-    render_entity_alias_review_rollup,
-    render_entity_alias_review_scoreboard,
-    render_entity_alias_review_packet_hydration,
     render_entity_alias_review_checklist,
+    render_entity_alias_review_packet_hydration,
+    render_entity_alias_review_rollup,
+    render_entity_alias_review_sample,
     render_entity_alias_review_sample_comparison,
     render_entity_alias_review_sample_proposal,
-    render_entity_alias_review_sample,
     render_entity_alias_review_sample_summary,
-    render_entity_alias_review_assist,
+    render_entity_alias_review_scoreboard,
+    report_stamp,
     sample_entity_alias_review_assist_groups,
     select_entity_alias_review_assist_batch,
     summarize_entity_alias_review_sample,
+    write_entity_alias_reject_stage_artifacts,
+    write_entity_alias_review_apply_plan_artifacts,
     write_entity_alias_review_assist_artifacts,
     write_entity_alias_review_campaign_artifacts,
     write_entity_alias_review_campaign_index_artifacts,
-    write_entity_alias_review_rollup_artifacts,
-    write_entity_alias_reject_stage_artifacts,
-    write_entity_alias_review_apply_plan_artifacts,
     write_entity_alias_review_packet_hydration_artifacts,
-    write_entity_alias_review_scoreboard_artifacts,
+    write_entity_alias_review_rollup_artifacts,
     write_entity_alias_review_sample_artifacts,
     write_entity_alias_review_sample_comparison_artifacts,
     write_entity_alias_review_sample_proposal_artifacts,
     write_entity_alias_review_sample_summary_artifacts,
+    write_entity_alias_review_scoreboard_artifacts,
 )
 
 
