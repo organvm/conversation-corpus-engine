@@ -6,7 +6,7 @@
 ## Current State
 
 OM-MEM-001 is **proposed but not ratified**. The criterion states: "the system must
-ingest its own session transcripts." No formal specification has been written yet.
+ingest its own session transcripts." A formal specification has been drafted in `docs/ratification/OM-MEM-001-specification.md`.
 
 ### References
 
@@ -34,8 +34,8 @@ existing omega criteria in `meta-organvm/organvm-corpvs-testamentvm/`.
 - [x] GH#14 opened to track ratification (S37)
 - [x] IRF-CCE-015 created
 - [x] Evidence partially assembled: testament files, session review protocol
-- [ ] Read existing omega criteria format from meta-organvm
-- [ ] Draft OM-MEM-001 specification
+- [x] Read existing omega criteria format from meta-organvm
+- [x] Draft OM-MEM-001 specification
 - [ ] Post specification as GH#14 comment
 - [ ] Ratification (formal acceptance)
 - [ ] Update omega state tracking
@@ -59,34 +59,40 @@ existing omega criteria in `meta-organvm/organvm-corpvs-testamentvm/`.
 - **Distinction: criterion vs. implementation.** Ratifying the criterion does NOT
   require implementing the adapter. It requires specifying *what done looks like*
   so that when the adapter is built, compliance can be objectively assessed.
-- **Format precedent:** Look at `meta-organvm/organvm-corpvs-testamentvm/` for the
-  existing omega criteria format. The specification must match that format exactly.
+- **Format precedent:** The existing omega criteria format from `meta-organvm/organvm-corpvs-testamentvm/` has been documented. The drafted specification matches that format exactly.
   Do NOT invent a new format.
+
+### Omega Evidence Format Specimen
+
+The established format for an Omega Criterion is as follows, extracted from existing criteria in `meta-organvm`:
+
+```markdown
+#### #[Number]: [Criterion Name] ([ID]) — [STATUS]
+
+**Criterion:** [The testable proposition that must be true.]
+
+**Status:** [Current state of the criterion, historical context, and partial evidence paths.]
+
+**Evidence:**
+- **(a) [Evidence 1]:** [Description of the first required artifact or condition.]
+- **(b) [Evidence 2]:** [Description of the second required artifact or condition.]
+- **(c) [Evidence 3]:** [Description of the third required artifact or condition.]
+
+**Measurement:** [Objective method to verify pass/fail status, often a CLI command or exact test condition.]
+
+**Gap:** [What is currently missing to fulfill the evidence requirements.]
+
+**Tracking:** [Links to tracking issues or IRFs.]
+```
 
 ## Next Actions
 
-1. Read existing omega criteria in meta-organvm:
-   ```bash
-   ls ~/Workspace/meta-organvm/organvm-corpvs-testamentvm/omega/
-   # or search for omega criterion files
-   find ~/Workspace/meta-organvm/ -name "*omega*" -o -name "*criterion*" | head -20
-   ```
+1. Post the specification drafted in `docs/ratification/OM-MEM-001-specification.md` as a comment on GH#14.
 
-2. Draft OM-MEM-001 specification following the existing format. Suggested content:
-   - **Statement:** "The conversation corpus engine must be capable of ingesting
-     transcripts from its own operational sessions as corpus artifacts."
-   - **Evidence:** (a) Import adapter exists for at least one session transcript
-     format, (b) at least one self-referential corpus exists in the registry,
-     (c) the corpus passes all 8 evaluation gates.
-   - **Measurement:** Run `cce evaluation run` against the self-referential corpus;
-     all gates must pass.
-
-3. Post the specification as a comment on GH#14
-
-4. Initiate ratification per the omega governance process (likely requires
+2. Initiate ratification per the omega governance process (likely requires
    human approval in meta-organvm)
 
-5. Update IRF-CCE-015 and omega state tracking
+3. Update IRF-CCE-015 and omega state tracking
 
 ## Risks & Warnings
 
