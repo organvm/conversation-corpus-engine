@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import sqlite3
 import sys
 from pathlib import Path
@@ -103,7 +102,9 @@ def test_decrypt_chromium_cookie_raises_for_openssl_error(monkeypatch: pytest.Mo
         module.decrypt_chromium_cookie(b"v10ciphertext", module.CLAUDE_COOKIE_HOST, "secret")
 
 
-def test_decrypt_chromium_cookie_raises_for_invalid_padding(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_decrypt_chromium_cookie_raises_for_invalid_padding(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setattr(
         module.subprocess,
         "run",
@@ -114,7 +115,9 @@ def test_decrypt_chromium_cookie_raises_for_invalid_padding(monkeypatch: pytest.
         module.decrypt_chromium_cookie(b"v10ciphertext", module.CLAUDE_COOKIE_HOST, "secret")
 
 
-def test_load_cookie_value_prefers_plain_value_and_can_decrypt(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_load_cookie_value_prefers_plain_value_and_can_decrypt(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     connection = sqlite3.connect(":memory:")
     try:
         connection.execute(
@@ -218,7 +221,9 @@ def test_fetch_json_uses_cookie_header(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(module, "urlopen", fake_urlopen)
 
     payload = module.fetch_json(
-        module.ClaudeHttpSession(headers={"Accept": "application/json"}, cookie_header="sessionKey=abc"),
+        module.ClaudeHttpSession(
+            headers={"Accept": "application/json"}, cookie_header="sessionKey=abc"
+        ),
         "https://claude.ai/api/test",
     )
 
@@ -228,14 +233,18 @@ def test_fetch_json_uses_cookie_header(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_fetch_claude_bootstrap_requires_object(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(module, "fetch_json", lambda session, url: [])
 
-    with pytest.raises(module.ClaudeLocalSessionError, match="bootstrap payload was not a JSON object"):
+    with pytest.raises(
+        module.ClaudeLocalSessionError, match="bootstrap payload was not a JSON object"
+    ):
         module.fetch_claude_bootstrap(module.ClaudeHttpSession(headers={}, cookie_header=""))
 
 
 def test_discover_claude_local_session_assembles_summary(monkeypatch: pytest.MonkeyPatch) -> None:
     local_root = Path("/tmp/claude")
     monkeypatch.setattr(module, "resolve_claude_local_root", lambda path: local_root)
-    monkeypatch.setattr(module, "find_safe_storage_password", lambda: ("Claude Safe Storage", "secret"))
+    monkeypatch.setattr(
+        module, "find_safe_storage_password", lambda: ("Claude Safe Storage", "secret")
+    )
     monkeypatch.setattr(
         module,
         "load_claude_cookies",
@@ -284,7 +293,9 @@ def test_fetch_claude_local_session_bundle_collects_details_and_failures(
 ) -> None:
     local_root = Path("/tmp/claude")
     monkeypatch.setattr(module, "resolve_claude_local_root", lambda path: local_root)
-    monkeypatch.setattr(module, "find_safe_storage_password", lambda: ("Claude Safe Storage", "secret"))
+    monkeypatch.setattr(
+        module, "find_safe_storage_password", lambda: ("Claude Safe Storage", "secret")
+    )
     monkeypatch.setattr(
         module,
         "load_claude_cookies",
@@ -367,7 +378,9 @@ def test_delta_aware_fetch_reuses_cached_conversations(
     local_root = Path("/tmp/claude")
     output_root = tmp_path / "output"
     monkeypatch.setattr(module, "resolve_claude_local_root", lambda path: local_root)
-    monkeypatch.setattr(module, "find_safe_storage_password", lambda: ("Claude Safe Storage", "secret"))
+    monkeypatch.setattr(
+        module, "find_safe_storage_password", lambda: ("Claude Safe Storage", "secret")
+    )
     monkeypatch.setattr(
         module,
         "load_claude_cookies",

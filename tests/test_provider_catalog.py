@@ -55,20 +55,24 @@ def test_get_provider_config_rejects_unknown_provider() -> None:
 
 
 def test_provider_bootstrap_report_path_uses_reports_directory(tmp_path: Path) -> None:
-    assert provider_bootstrap_report_path(tmp_path / "project", "claude") == (
-        tmp_path / "project" / "reports" / "claude-evaluation-bootstrap-latest.md"
-    ).resolve()
+    assert (
+        provider_bootstrap_report_path(tmp_path / "project", "claude")
+        == (tmp_path / "project" / "reports" / "claude-evaluation-bootstrap-latest.md").resolve()
+    )
 
 
 def test_conventional_corpus_root_uses_source_drop_parent(tmp_path: Path) -> None:
     source_drop_root = tmp_path / "source-drop"
 
-    assert conventional_corpus_root(source_drop_root, "chatgpt-history") == (
-        tmp_path / "chatgpt-history"
-    ).resolve()
+    assert (
+        conventional_corpus_root(source_drop_root, "chatgpt-history")
+        == (tmp_path / "chatgpt-history").resolve()
+    )
 
 
-def test_provider_corpus_targets_prefers_viable_fallback_when_primary_missing(tmp_path: Path) -> None:
+def test_provider_corpus_targets_prefers_viable_fallback_when_primary_missing(
+    tmp_path: Path,
+) -> None:
     project_root = tmp_path / "project"
     source_drop_root = tmp_path / "source-drop"
     fallback_root = tmp_path / "chatgpt-history"

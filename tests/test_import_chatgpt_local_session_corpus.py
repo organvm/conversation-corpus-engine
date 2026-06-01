@@ -8,7 +8,6 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from conversation_corpus_engine import chatgpt_local_session  # noqa: E402
 from conversation_corpus_engine import import_chatgpt_local_session_corpus as module  # noqa: E402
 
 

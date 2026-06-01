@@ -340,7 +340,9 @@ def test_main_review_assist_renders_text_summary(
         "render_entity_alias_review_assist",
         lambda data, *, group_limit: f"assist for {data['open_count']} with limit {group_limit}",
     )
-    monkeypatch.setattr(MODULE, "select_entity_alias_review_assist_batch", lambda payload, batch_id: payload)
+    monkeypatch.setattr(
+        MODULE, "select_entity_alias_review_assist_batch", lambda payload, batch_id: payload
+    )
 
     _run_main(
         monkeypatch,
@@ -381,9 +383,13 @@ def test_main_review_assist_json_mode_prints_payload(
     monkeypatch.setattr(
         MODULE,
         "write_entity_alias_review_assist_artifacts",
-        lambda project_root, payload: {"latest_json_path": str(project_root / "reports" / "assist.json")},
+        lambda project_root, payload: {
+            "latest_json_path": str(project_root / "reports" / "assist.json")
+        },
     )
-    monkeypatch.setattr(MODULE, "select_entity_alias_review_assist_batch", lambda payload, batch_id: payload)
+    monkeypatch.setattr(
+        MODULE, "select_entity_alias_review_assist_batch", lambda payload, batch_id: payload
+    )
 
     _run_main(
         monkeypatch,
@@ -427,7 +433,9 @@ def test_main_review_assist_text_mode_prints_artifact_paths_when_written(
             "report_path": str(project_root / "reports" / "assist-2026-03-25.md"),
         },
     )
-    monkeypatch.setattr(MODULE, "select_entity_alias_review_assist_batch", lambda payload, batch_id: payload)
+    monkeypatch.setattr(
+        MODULE, "select_entity_alias_review_assist_batch", lambda payload, batch_id: payload
+    )
 
     _run_main(monkeypatch, ["review", "assist", "--project-root", str(tmp_path), "--write"])
     output = capsys.readouterr().out
@@ -444,10 +452,15 @@ def test_main_review_assist_batch_id_selects_single_batch(
     monkeypatch.setattr(
         MODULE,
         "build_entity_alias_review_assist",
-        lambda project_root, **kwargs: {"open_count": 4, "batches": [{"batch_id": "entity-alias-batch-001"}]},
+        lambda project_root, **kwargs: {
+            "open_count": 4,
+            "batches": [{"batch_id": "entity-alias-batch-001"}],
+        },
     )
 
-    def fake_select_review_assist_batch(payload: dict[str, object], batch_id: str) -> dict[str, object]:
+    def fake_select_review_assist_batch(
+        payload: dict[str, object], batch_id: str
+    ) -> dict[str, object]:
         calls["select"] = (payload, batch_id)
         return {"open_count": 2, "selection": {"batch_id": batch_id}}
 
@@ -459,9 +472,15 @@ def test_main_review_assist_batch_id_selects_single_batch(
     monkeypatch.setattr(
         MODULE,
         "render_entity_alias_review_assist",
-        lambda payload, *, group_limit: f"batch {payload['selection']['batch_id']} limit {group_limit}",
+        lambda payload, *, group_limit: (
+            f"batch {payload['selection']['batch_id']} limit {group_limit}"
+        ),
     )
-    monkeypatch.setattr(MODULE, "filter_entity_alias_review_assist_groups", lambda payload, review_bucket_filters=None: payload)
+    monkeypatch.setattr(
+        MODULE,
+        "filter_entity_alias_review_assist_groups",
+        lambda payload, review_bucket_filters=None: payload,
+    )
 
     _run_main(
         monkeypatch,
@@ -486,14 +505,21 @@ def test_main_review_assist_invalid_batch_id_exits_via_parser(
     monkeypatch.setattr(
         MODULE,
         "build_entity_alias_review_assist",
-        lambda project_root, **kwargs: {"open_count": 4, "batches": [{"batch_id": "entity-alias-batch-001"}]},
+        lambda project_root, **kwargs: {
+            "open_count": 4,
+            "batches": [{"batch_id": "entity-alias-batch-001"}],
+        },
     )
     monkeypatch.setattr(
         MODULE,
         "select_entity_alias_review_assist_batch",
         lambda payload, batch_id: (_ for _ in ()).throw(ValueError(f"Unknown batch: {batch_id}")),
     )
-    monkeypatch.setattr(MODULE, "filter_entity_alias_review_assist_groups", lambda payload, review_bucket_filters=None: payload)
+    monkeypatch.setattr(
+        MODULE,
+        "filter_entity_alias_review_assist_groups",
+        lambda payload, review_bucket_filters=None: payload,
+    )
 
     with pytest.raises(SystemExit) as exc_info:
         _run_main(
@@ -520,7 +546,9 @@ def test_main_review_assist_sample_mode_filters_groups_and_writes_sample_artifac
         "build_entity_alias_review_assist",
         lambda project_root, **kwargs: {"open_count": 8, "groups": [], "batches": []},
     )
-    monkeypatch.setattr(MODULE, "select_entity_alias_review_assist_batch", lambda payload, batch_id: payload)
+    monkeypatch.setattr(
+        MODULE, "select_entity_alias_review_assist_batch", lambda payload, batch_id: payload
+    )
 
     def fake_filter_review_assist_groups(
         payload: dict[str, object],
@@ -544,9 +572,15 @@ def test_main_review_assist_sample_mode_filters_groups_and_writes_sample_artifac
             "sample": {"selected_group_count": 2},
         }
 
-    monkeypatch.setattr(MODULE, "filter_entity_alias_review_assist_groups", fake_filter_review_assist_groups)
-    monkeypatch.setattr(MODULE, "sample_entity_alias_review_assist_groups", fake_sample_review_assist_groups)
-    monkeypatch.setattr(MODULE, "render_entity_alias_review_sample", lambda payload: "sample report")
+    monkeypatch.setattr(
+        MODULE, "filter_entity_alias_review_assist_groups", fake_filter_review_assist_groups
+    )
+    monkeypatch.setattr(
+        MODULE, "sample_entity_alias_review_assist_groups", fake_sample_review_assist_groups
+    )
+    monkeypatch.setattr(
+        MODULE, "render_entity_alias_review_sample", lambda payload: "sample report"
+    )
     monkeypatch.setattr(
         MODULE,
         "write_entity_alias_review_sample_artifacts",
@@ -588,10 +622,20 @@ def test_main_review_assist_sample_json_mode_prints_sample_payload(
     monkeypatch.setattr(
         MODULE,
         "build_entity_alias_review_assist",
-        lambda project_root, **kwargs: {"project_root": str(project_root), "groups": [], "batches": []},
+        lambda project_root, **kwargs: {
+            "project_root": str(project_root),
+            "groups": [],
+            "batches": [],
+        },
     )
-    monkeypatch.setattr(MODULE, "select_entity_alias_review_assist_batch", lambda payload, batch_id: payload)
-    monkeypatch.setattr(MODULE, "filter_entity_alias_review_assist_groups", lambda payload, review_bucket_filters=None: payload)
+    monkeypatch.setattr(
+        MODULE, "select_entity_alias_review_assist_batch", lambda payload, batch_id: payload
+    )
+    monkeypatch.setattr(
+        MODULE,
+        "filter_entity_alias_review_assist_groups",
+        lambda payload, review_bucket_filters=None: payload,
+    )
     monkeypatch.setattr(
         MODULE,
         "sample_entity_alias_review_assist_groups",
@@ -607,7 +651,9 @@ def test_main_review_assist_sample_json_mode_prints_sample_payload(
     monkeypatch.setattr(
         MODULE,
         "write_entity_alias_review_sample_artifacts",
-        lambda project_root, payload: {"latest_markdown_path": str(project_root / "reports" / "sample-latest.md")},
+        lambda project_root, payload: {
+            "latest_markdown_path": str(project_root / "reports" / "sample-latest.md")
+        },
     )
 
     _run_main(
@@ -651,7 +697,9 @@ def test_main_review_sample_summary_renders_text_and_artifacts(
         calls["write"] = (project_root, payload)
         return {"latest_markdown_path": str(project_root / "reports" / "sample-summary-latest.md")}
 
-    monkeypatch.setattr(MODULE, "summarize_entity_alias_review_sample", fake_summarize_review_sample)
+    monkeypatch.setattr(
+        MODULE, "summarize_entity_alias_review_sample", fake_summarize_review_sample
+    )
     monkeypatch.setattr(
         MODULE,
         "render_entity_alias_review_sample_summary",
@@ -678,7 +726,10 @@ def test_main_review_sample_summary_renders_text_and_artifacts(
     output = capsys.readouterr().out
 
     assert calls["summarize"] == sample_path
-    assert calls["write"] == (tmp_path, {"source_path": str(sample_path), "reject_precision": 0.75, "samples": []})
+    assert calls["write"] == (
+        tmp_path,
+        {"source_path": str(sample_path), "reject_precision": 0.75, "samples": []},
+    )
     assert "summary for" in output
     assert str(tmp_path / "reports" / "sample-summary-latest.md") in output
 
@@ -695,7 +746,9 @@ def test_main_review_sample_summary_json_mode_prints_payload(
     monkeypatch.setattr(
         MODULE,
         "write_entity_alias_review_sample_summary_artifacts",
-        lambda project_root, payload: {"latest_json_path": str(project_root / "reports" / "sample-summary-latest.json")},
+        lambda project_root, payload: {
+            "latest_json_path": str(project_root / "reports" / "sample-summary-latest.json")
+        },
     )
 
     _run_main(
@@ -776,12 +829,18 @@ def test_main_review_sample_propose_json_mode_prints_payload(
     monkeypatch.setattr(
         MODULE,
         "propose_entity_alias_review_sample",
-        lambda path: {"source_path": str(path), "assistant_outcome_counts": {"reject": 2}, "samples": []},
+        lambda path: {
+            "source_path": str(path),
+            "assistant_outcome_counts": {"reject": 2},
+            "samples": [],
+        },
     )
     monkeypatch.setattr(
         MODULE,
         "write_entity_alias_review_sample_proposal_artifacts",
-        lambda project_root, payload: {"latest_json_path": str(project_root / "reports" / "sample-proposal-latest.json")},
+        lambda project_root, payload: {
+            "latest_json_path": str(project_root / "reports" / "sample-proposal-latest.json")
+        },
     )
 
     _run_main(
@@ -821,7 +880,9 @@ def test_main_review_sample_compare_renders_text_and_artifacts(
         calls["write"] = (project_root, payload)
         return {"latest_markdown_path": str(project_root / "reports" / "sample-compare-latest.md")}
 
-    monkeypatch.setattr(MODULE, "compare_entity_alias_review_sample_to_proposal", fake_compare_review_sample)
+    monkeypatch.setattr(
+        MODULE, "compare_entity_alias_review_sample_to_proposal", fake_compare_review_sample
+    )
     monkeypatch.setattr(
         MODULE,
         "render_entity_alias_review_sample_comparison",
@@ -852,7 +913,11 @@ def test_main_review_sample_compare_renders_text_and_artifacts(
     assert calls["compare"] == (sample_path, proposal_path)
     assert calls["write"] == (
         tmp_path,
-        {"sample_path": str(sample_path), "proposal_path": str(proposal_path), "agreement_rate": 0.75},
+        {
+            "sample_path": str(sample_path),
+            "proposal_path": str(proposal_path),
+            "agreement_rate": 0.75,
+        },
     )
     assert "comparison for" in output
     assert str(tmp_path / "reports" / "sample-compare-latest.md") in output
@@ -866,12 +931,18 @@ def test_main_review_sample_compare_json_mode_prints_payload(
     monkeypatch.setattr(
         MODULE,
         "compare_entity_alias_review_sample_to_proposal",
-        lambda sample, proposal: {"sample_path": str(sample), "proposal_path": str(proposal), "agreement_rate": 0.5},
+        lambda sample, proposal: {
+            "sample_path": str(sample),
+            "proposal_path": str(proposal),
+            "agreement_rate": 0.5,
+        },
     )
     monkeypatch.setattr(
         MODULE,
         "write_entity_alias_review_sample_comparison_artifacts",
-        lambda project_root, payload: {"latest_json_path": str(project_root / "reports" / "sample-compare-latest.json")},
+        lambda project_root, payload: {
+            "latest_json_path": str(project_root / "reports" / "sample-compare-latest.json")
+        },
     )
 
     _run_main(
@@ -1027,7 +1098,9 @@ def test_main_review_campaign_index_renders_text_and_artifacts(
         calls["write"] = (project_root, payload)
         return {"latest_markdown_path": str(project_root / "reports" / "campaign-index-latest.md")}
 
-    monkeypatch.setattr(MODULE, "build_entity_alias_review_campaign_index", fake_build_campaign_index)
+    monkeypatch.setattr(
+        MODULE, "build_entity_alias_review_campaign_index", fake_build_campaign_index
+    )
     monkeypatch.setattr(
         MODULE,
         "render_entity_alias_review_campaign_index",
@@ -1080,7 +1153,9 @@ def test_main_review_campaign_rollup_json_mode_prints_payload(
     monkeypatch.setattr(
         MODULE,
         "write_entity_alias_review_rollup_artifacts",
-        lambda project_root, payload: {"latest_json_path": str(project_root / "reports" / "rollup-latest.json")},
+        lambda project_root, payload: {
+            "latest_json_path": str(project_root / "reports" / "rollup-latest.json")
+        },
     )
 
     _run_main(
@@ -1210,7 +1285,9 @@ def test_main_review_packet_hydrate_json_mode_prints_payload(
     monkeypatch.setattr(
         MODULE,
         "write_entity_alias_review_packet_hydration_artifacts",
-        lambda project_root, payload: {"latest_json_path": str(project_root / "reports" / "packet-hydrate-latest.json")},
+        lambda project_root, payload: {
+            "latest_json_path": str(project_root / "reports" / "packet-hydrate-latest.json")
+        },
     )
 
     _run_main(
@@ -1307,7 +1384,9 @@ def test_main_review_apply_plan_json_mode_prints_payload(
     monkeypatch.setattr(
         MODULE,
         "write_entity_alias_review_apply_plan_artifacts",
-        lambda project_root, payload: {"latest_json_path": str(project_root / "reports" / "apply-plan-latest.json")},
+        lambda project_root, payload: {
+            "latest_json_path": str(project_root / "reports" / "apply-plan-latest.json")
+        },
     )
 
     _run_main(
@@ -1371,7 +1450,9 @@ def test_main_dashboard_text_mode_uses_renderer_output(
     monkeypatch.setattr(
         MODULE,
         "render_dashboard_text",
-        lambda payload: f"dashboard for {payload['project_root']} via {payload['source_drop_root']}",
+        lambda payload: (
+            f"dashboard for {payload['project_root']} via {payload['source_drop_root']}"
+        ),
     )
 
     _run_main(

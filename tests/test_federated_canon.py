@@ -61,12 +61,8 @@ def _surface(
                 "stable_themes": themes,
                 "doctrine_summary": f"{family_title} doctrine.",
                 "actions": [{"action_key": action_key, "canonical_action": action_text}],
-                "unresolved": [
-                    {"question_key": question_key, "canonical_question": question_text}
-                ],
-                "key_entities": [
-                    {"canonical_label": entity_label, "entity_type": "concept"}
-                ],
+                "unresolved": [{"question_key": question_key, "canonical_question": question_text}],
+                "key_entities": [{"canonical_label": entity_label, "entity_type": "concept"}],
             }
         ],
         "doctrine_briefs": [
@@ -523,9 +519,7 @@ class TestMigrateReviewIds:
         ]
         self._seed_state(tmp_path, items)
         MODULE.migrate_review_ids(tmp_path)
-        queue = json.loads(
-            (tmp_path / "state" / "federated-review-queue.json").read_text()
-        )
+        queue = json.loads((tmp_path / "state" / "federated-review-queue.json").read_text())
         new_ids = [i["review_id"] for i in queue["items"]]
         assert len(set(new_ids)) == 2, f"Expected unique IDs after migration, got {new_ids}"
 

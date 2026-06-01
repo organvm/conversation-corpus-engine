@@ -20,7 +20,9 @@ def _write_engagement(path: Path, engagement_id: str) -> None:
 def test_commerce_inventory_finds_eng_001_through_eng_005(tmp_path: Path, monkeypatch) -> None:
     workspace_root = tmp_path / "Workspace"
     commerce_root = workspace_root / "organvm" / "commerce--meta"
-    _write_engagement(commerce_root / "engagements" / "active" / "sovereign-systems.yaml", "ENG-001")
+    _write_engagement(
+        commerce_root / "engagements" / "active" / "sovereign-systems.yaml", "ENG-001"
+    )
     _write_engagement(
         commerce_root / "engagements" / "active" / "public-record-data-scrapper.yaml",
         "ENG-002",
@@ -47,6 +49,9 @@ def test_commerce_inventory_finds_eng_001_through_eng_005(tmp_path: Path, monkey
     assert set(records) == {"ENG-001", "ENG-002", "ENG-003", "ENG-004", "ENG-005"}
     assert records["ENG-001"].name == "sovereign-systems.yaml"
     assert records["ENG-004"].name == "post-proto-mousike-nomos.yaml"
-    assert find_commerce_engagement_record("ENG-005") == (
-        commerce_root / "engagements" / "active" / "content-engine-asset-amplifier.yaml"
-    ).resolve()
+    assert (
+        find_commerce_engagement_record("ENG-005")
+        == (
+            commerce_root / "engagements" / "active" / "content-engine-asset-amplifier.yaml"
+        ).resolve()
+    )

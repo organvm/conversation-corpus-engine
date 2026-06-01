@@ -60,15 +60,13 @@ def test_collect_source_files_for_claude_local_session_tracks_only_supported_pat
     (local_root / "Local Storage" / "leveldb" / "0001.log").parent.mkdir(
         parents=True, exist_ok=True
     )
-    (local_root / "Local Storage" / "leveldb" / "0001.log").write_text(
-        "leveldb", encoding="utf-8"
+    (local_root / "Local Storage" / "leveldb" / "0001.log").write_text("leveldb", encoding="utf-8")
+    (local_root / "IndexedDB" / "https_claude.ai_0.indexeddb.leveldb" / "LOG").parent.mkdir(
+        parents=True, exist_ok=True
     )
-    (
-        local_root / "IndexedDB" / "https_claude.ai_0.indexeddb.leveldb" / "LOG"
-    ).parent.mkdir(parents=True, exist_ok=True)
-    (
-        local_root / "IndexedDB" / "https_claude.ai_0.indexeddb.leveldb" / "LOG"
-    ).write_text("indexeddb", encoding="utf-8")
+    (local_root / "IndexedDB" / "https_claude.ai_0.indexeddb.leveldb" / "LOG").write_text(
+        "indexeddb", encoding="utf-8"
+    )
     (local_root / "random" / "ignore.txt").parent.mkdir(parents=True, exist_ok=True)
     (local_root / "random" / "ignore.txt").write_text("ignore", encoding="utf-8")
 

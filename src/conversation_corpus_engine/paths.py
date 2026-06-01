@@ -84,7 +84,9 @@ def resolve_workspace_path(path: str | Path) -> Path:
         if aliased and aliased not in lookup_names:
             lookup_names.append(aliased)
         for lookup_name in lookup_names:
-            matches = [Path(item) for item in _workspace_repo_roots(str(workspace_root), lookup_name)]
+            matches = [
+                Path(item) for item in _workspace_repo_roots(str(workspace_root), lookup_name)
+            ]
             if len(matches) != 1:
                 continue
             relocated = (matches[0] / remainder).resolve()

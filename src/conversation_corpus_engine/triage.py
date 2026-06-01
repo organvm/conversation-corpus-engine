@@ -189,13 +189,10 @@ def _semantic_title_policy(
     if min(len(left_tokens), len(right_tokens)) < min_shorter_tokens:
         return None
     metrics = _token_overlap_metrics(left_title, right_title)
-    if (
-        metrics["overlap_count"] >= min_overlap
-        and (
-            metrics["jaccard"] >= min_jaccard
-            or metrics["subset_ratio"] >= min_subset_ratio
-            or left_title.lower() == right_title.lower()
-        )
+    if metrics["overlap_count"] >= min_overlap and (
+        metrics["jaccard"] >= min_jaccard
+        or metrics["subset_ratio"] >= min_subset_ratio
+        or left_title.lower() == right_title.lower()
     ):
         return {
             "decision": "accepted",
@@ -214,7 +211,10 @@ def _generic_singleton_entity_policy(item: dict[str, Any]) -> dict[str, Any] | N
     right_tokens = _meaningful_tokens(right_title)
     if {len(left_tokens), len(right_tokens)} != {1, max(len(left_tokens), len(right_tokens))}:
         return None
-    if min(len(left_tokens), len(right_tokens)) != 1 or max(len(left_tokens), len(right_tokens)) < 3:
+    if (
+        min(len(left_tokens), len(right_tokens)) != 1
+        or max(len(left_tokens), len(right_tokens)) < 3
+    ):
         return None
     short_tokens = set(left_tokens if len(left_tokens) < len(right_tokens) else right_tokens)
     long_tokens = set(right_tokens if len(left_tokens) < len(right_tokens) else left_tokens)
@@ -243,7 +243,9 @@ def _entity_alias_anchor(
     suggested = _normalize_label(str(item.get("suggested_canonical_subject") or ""))
     if suggested:
         return suggested
-    labels = [label for label in (_normalize_label(left_label), _normalize_label(right_label)) if label]
+    labels = [
+        label for label in (_normalize_label(left_label), _normalize_label(right_label)) if label
+    ]
     if labels:
         return min(labels, key=lambda value: (len(_meaningful_tokens(value)), len(value), value))
     local_ids = [local for _, local in extract_local_ids(subject_ids)]
@@ -300,7 +302,9 @@ def _entity_alias_label_signals(label: str) -> list[str]:
         signals.append("placeholder-like-label")
     if normalized in HEADING_LIKE_LABELS:
         signals.append("heading-like-label")
-    if compact.isdigit() or (compact.isalnum() and any(char.isdigit() for char in compact) and len(compact) <= 6):
+    if compact.isdigit() or (
+        compact.isalnum() and any(char.isdigit() for char in compact) and len(compact) <= 6
+    ):
         signals.append("numeric-or-code-label")
     if len(tokens) <= 1 and compact.isalpha() and len(compact) <= 3:
         signals.append("short-fragment-label")
@@ -350,7 +354,9 @@ def _entity_alias_assist_entry(item: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _entity_alias_counts(entries: list[dict[str, Any]]) -> tuple[dict[str, int], dict[str, int], dict[str, int]]:
+def _entity_alias_counts(
+    entries: list[dict[str, Any]],
+) -> tuple[dict[str, int], dict[str, int], dict[str, int]]:
     relation_counts: dict[str, int] = {}
     source_pair_counts: dict[str, int] = {}
     priority_counts: dict[str, int] = {}
@@ -364,7 +370,9 @@ def _entity_alias_counts(entries: list[dict[str, Any]]) -> tuple[dict[str, int],
     return relation_counts, source_pair_counts, priority_counts
 
 
-def _entity_alias_group_guidance(group: dict[str, Any]) -> tuple[str, list[str], list[str], dict[str, int]]:
+def _entity_alias_group_guidance(
+    group: dict[str, Any],
+) -> tuple[str, list[str], list[str], dict[str, int]]:
     entries = list(group.get("items") or [])
     disjoint_count = sum(1 for entry in entries if entry.get("relation") == "disjoint")
     exactish_count = sum(
@@ -373,7 +381,9 @@ def _entity_alias_group_guidance(group: dict[str, Any]) -> tuple[str, list[str],
         if entry.get("relation") in {"exact-match", "substring", "high-overlap"}
     )
     zero_overlap_count = sum(
-        1 for entry in entries if int((entry.get("token_metrics") or {}).get("overlap_count", 0)) == 0
+        1
+        for entry in entries
+        if int((entry.get("token_metrics") or {}).get("overlap_count", 0)) == 0
     )
     high_score_count = sum(1 for entry in entries if float(entry.get("score") or 0.0) >= 0.9)
     low_specificity_entry_count = sum(1 for entry in entries if entry.get("label_signals"))
@@ -396,20 +406,34 @@ def _entity_alias_group_guidance(group: dict[str, Any]) -> tuple[str, list[str],
 
     checklist: list[str] = []
     if bucket == "alias-check":
-        checklist.append("Check whether the longer label is a true alias rather than a broader concept.")
-        checklist.append("Accept only if the shared terms point to the same named thing, not a topical family.")
+        checklist.append(
+            "Check whether the longer label is a true alias rather than a broader concept."
+        )
+        checklist.append(
+            "Accept only if the shared terms point to the same named thing, not a topical family."
+        )
     elif bucket == "needs-context":
-        checklist.append("Inspect the highest-scoring pair before rejecting; upstream signal is stronger than lexical overlap.")
-        checklist.append("Reject only if the pair still reads like neighboring topics rather than the same entity.")
+        checklist.append(
+            "Inspect the highest-scoring pair before rejecting; upstream signal is stronger than lexical overlap."
+        )
+        checklist.append(
+            "Reject only if the pair still reads like neighboring topics rather than the same entity."
+        )
     elif bucket == "likely-reject":
         checklist.append("Reject unless external context ties these labels to the same entity.")
         checklist.append("Spot-check the top-scoring pair before closing the whole group.")
     else:
-        checklist.append("Review the highest-scoring pair first and decide whether the shared terms imply identity or only topical overlap.")
-        checklist.append("Use the remaining pairs to confirm the group-level pattern before resolving in bulk.")
+        checklist.append(
+            "Review the highest-scoring pair first and decide whether the shared terms imply identity or only topical overlap."
+        )
+        checklist.append(
+            "Use the remaining pairs to confirm the group-level pattern before resolving in bulk."
+        )
 
     if low_specificity_entry_count:
-        checklist.append("Verify labels are not headings, placeholders, fragments, or extraction residue.")
+        checklist.append(
+            "Verify labels are not headings, placeholders, fragments, or extraction residue."
+        )
 
     signal_counts = {
         "disjoint_count": disjoint_count,
@@ -627,10 +651,14 @@ def select_entity_alias_review_assist_batch(
                 "available_group_count": payload.get("group_count", len(groups)),
             },
         }
-    available = ", ".join(batch.get("batch_id", "") for batch in batches[:10] if batch.get("batch_id"))
+    available = ", ".join(
+        batch.get("batch_id", "") for batch in batches[:10] if batch.get("batch_id")
+    )
     if len(batches) > 10:
         available = f"{available}, ..."
-    raise ValueError(f"Unknown review-assist batch: {batch_id}. Available batches: {available or 'none'}")
+    raise ValueError(
+        f"Unknown review-assist batch: {batch_id}. Available batches: {available or 'none'}"
+    )
 
 
 def filter_entity_alias_review_assist_groups(
@@ -701,9 +729,13 @@ def sample_entity_alias_review_assist_groups(
         }
         for batch in candidate_batches
     ]
-    sampled_by_batch: dict[str, list[dict[str, Any]]] = {batch["batch_id"]: [] for batch in candidate_batches}
+    sampled_by_batch: dict[str, list[dict[str, Any]]] = {
+        batch["batch_id"]: [] for batch in candidate_batches
+    }
     sampled_groups_list: list[dict[str, Any]] = []
-    while len(sampled_groups_list) < requested_groups and any(batch["groups"] for batch in batch_queues):
+    while len(sampled_groups_list) < requested_groups and any(
+        batch["groups"] for batch in batch_queues
+    ):
         for batch in batch_queues:
             if len(sampled_groups_list) >= requested_groups:
                 break
@@ -801,8 +833,7 @@ def render_entity_alias_review_assist(
             payload["source_pair_counts"].items(), key=lambda item: (-item[1], item[0])
         )[:3]
         lines.append(
-            "Top source pairs: "
-            + ", ".join(f"{pair}={count}" for pair, count in top_pairs if pair)
+            "Top source pairs: " + ", ".join(f"{pair}={count}" for pair, count in top_pairs if pair)
         )
     lines.append("")
 
@@ -834,9 +865,7 @@ def render_entity_alias_review_assist(
                 lines.append(f"  labels: {', '.join(group['labels'][:5])}")
             if group["items"]:
                 example = group["items"][0]
-                lines.append(
-                    f"  example: {example['title']} [{example['relation']}]"
-                )
+                lines.append(f"  example: {example['title']} [{example['relation']}]")
                 lines.append(f"  hint: {example['review_hint']}")
             for action in (group.get("checklist") or [])[:3]:
                 lines.append(f"  review: {action}")
@@ -876,10 +905,14 @@ def review_assist_sample_latest_markdown_path(project_root: Path) -> Path:
 
 
 def review_assist_sample_session_json_path(project_root: Path, stamp: str | None = None) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-sample-{stamp or report_stamp()}.json"
+    return (
+        project_root.resolve() / "reports" / f"review-assist-sample-{stamp or report_stamp()}.json"
+    )
 
 
-def review_assist_sample_session_markdown_path(project_root: Path, stamp: str | None = None) -> Path:
+def review_assist_sample_session_markdown_path(
+    project_root: Path, stamp: str | None = None
+) -> Path:
     return project_root.resolve() / "reports" / f"review-assist-sample-{stamp or report_stamp()}.md"
 
 
@@ -894,13 +927,21 @@ def review_assist_sample_summary_latest_markdown_path(project_root: Path) -> Pat
 def review_assist_sample_summary_session_json_path(
     project_root: Path, stamp: str | None = None
 ) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-sample-summary-{stamp or report_stamp()}.json"
+    return (
+        project_root.resolve()
+        / "reports"
+        / f"review-assist-sample-summary-{stamp or report_stamp()}.json"
+    )
 
 
 def review_assist_sample_summary_session_markdown_path(
     project_root: Path, stamp: str | None = None
 ) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-sample-summary-{stamp or report_stamp()}.md"
+    return (
+        project_root.resolve()
+        / "reports"
+        / f"review-assist-sample-summary-{stamp or report_stamp()}.md"
+    )
 
 
 def review_assist_sample_proposal_latest_json_path(project_root: Path) -> Path:
@@ -914,13 +955,21 @@ def review_assist_sample_proposal_latest_markdown_path(project_root: Path) -> Pa
 def review_assist_sample_proposal_session_json_path(
     project_root: Path, stamp: str | None = None
 ) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-sample-proposal-{stamp or report_stamp()}.json"
+    return (
+        project_root.resolve()
+        / "reports"
+        / f"review-assist-sample-proposal-{stamp or report_stamp()}.json"
+    )
 
 
 def review_assist_sample_proposal_session_markdown_path(
     project_root: Path, stamp: str | None = None
 ) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-sample-proposal-{stamp or report_stamp()}.md"
+    return (
+        project_root.resolve()
+        / "reports"
+        / f"review-assist-sample-proposal-{stamp or report_stamp()}.md"
+    )
 
 
 def review_assist_sample_compare_latest_json_path(project_root: Path) -> Path:
@@ -934,13 +983,21 @@ def review_assist_sample_compare_latest_markdown_path(project_root: Path) -> Pat
 def review_assist_sample_compare_session_json_path(
     project_root: Path, stamp: str | None = None
 ) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-sample-compare-{stamp or report_stamp()}.json"
+    return (
+        project_root.resolve()
+        / "reports"
+        / f"review-assist-sample-compare-{stamp or report_stamp()}.json"
+    )
 
 
 def review_assist_sample_compare_session_markdown_path(
     project_root: Path, stamp: str | None = None
 ) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-sample-compare-{stamp or report_stamp()}.md"
+    return (
+        project_root.resolve()
+        / "reports"
+        / f"review-assist-sample-compare-{stamp or report_stamp()}.md"
+    )
 
 
 def review_assist_campaign_latest_json_path(project_root: Path) -> Path:
@@ -952,11 +1009,19 @@ def review_assist_campaign_latest_markdown_path(project_root: Path) -> Path:
 
 
 def review_assist_campaign_session_json_path(project_root: Path, stamp: str | None = None) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-campaign-{stamp or report_stamp()}.json"
+    return (
+        project_root.resolve()
+        / "reports"
+        / f"review-assist-campaign-{stamp or report_stamp()}.json"
+    )
 
 
-def review_assist_campaign_session_markdown_path(project_root: Path, stamp: str | None = None) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-campaign-{stamp or report_stamp()}.md"
+def review_assist_campaign_session_markdown_path(
+    project_root: Path, stamp: str | None = None
+) -> Path:
+    return (
+        project_root.resolve() / "reports" / f"review-assist-campaign-{stamp or report_stamp()}.md"
+    )
 
 
 def review_assist_campaign_index_latest_json_path(project_root: Path) -> Path:
@@ -970,13 +1035,21 @@ def review_assist_campaign_index_latest_markdown_path(project_root: Path) -> Pat
 def review_assist_campaign_index_session_json_path(
     project_root: Path, stamp: str | None = None
 ) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-campaign-index-{stamp or report_stamp()}.json"
+    return (
+        project_root.resolve()
+        / "reports"
+        / f"review-assist-campaign-index-{stamp or report_stamp()}.json"
+    )
 
 
 def review_assist_campaign_index_session_markdown_path(
     project_root: Path, stamp: str | None = None
 ) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-campaign-index-{stamp or report_stamp()}.md"
+    return (
+        project_root.resolve()
+        / "reports"
+        / f"review-assist-campaign-index-{stamp or report_stamp()}.md"
+    )
 
 
 def review_assist_rollup_latest_json_path(project_root: Path) -> Path:
@@ -988,7 +1061,9 @@ def review_assist_rollup_latest_markdown_path(project_root: Path) -> Path:
 
 
 def review_assist_rollup_session_json_path(project_root: Path, stamp: str | None = None) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-rollup-{stamp or report_stamp()}.json"
+    return (
+        project_root.resolve() / "reports" / f"review-assist-rollup-{stamp or report_stamp()}.json"
+    )
 
 
 def review_assist_rollup_session_markdown_path(
@@ -1008,13 +1083,21 @@ def review_assist_reject_stage_latest_markdown_path(project_root: Path) -> Path:
 def review_assist_reject_stage_session_json_path(
     project_root: Path, stamp: str | None = None
 ) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-reject-stage-{stamp or report_stamp()}.json"
+    return (
+        project_root.resolve()
+        / "reports"
+        / f"review-assist-reject-stage-{stamp or report_stamp()}.json"
+    )
 
 
 def review_assist_reject_stage_session_markdown_path(
     project_root: Path, stamp: str | None = None
 ) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-reject-stage-{stamp or report_stamp()}.md"
+    return (
+        project_root.resolve()
+        / "reports"
+        / f"review-assist-reject-stage-{stamp or report_stamp()}.md"
+    )
 
 
 def review_assist_packet_hydrate_latest_json_path(project_root: Path) -> Path:
@@ -1028,13 +1111,21 @@ def review_assist_packet_hydrate_latest_markdown_path(project_root: Path) -> Pat
 def review_assist_packet_hydrate_session_json_path(
     project_root: Path, stamp: str | None = None
 ) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-packet-hydrate-{stamp or report_stamp()}.json"
+    return (
+        project_root.resolve()
+        / "reports"
+        / f"review-assist-packet-hydrate-{stamp or report_stamp()}.json"
+    )
 
 
 def review_assist_packet_hydrate_session_markdown_path(
     project_root: Path, stamp: str | None = None
 ) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-packet-hydrate-{stamp or report_stamp()}.md"
+    return (
+        project_root.resolve()
+        / "reports"
+        / f"review-assist-packet-hydrate-{stamp or report_stamp()}.md"
+    )
 
 
 def review_assist_scoreboard_latest_json_path(project_root: Path) -> Path:
@@ -1048,13 +1139,21 @@ def review_assist_scoreboard_latest_markdown_path(project_root: Path) -> Path:
 def review_assist_scoreboard_session_json_path(
     project_root: Path, stamp: str | None = None
 ) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-scoreboard-{stamp or report_stamp()}.json"
+    return (
+        project_root.resolve()
+        / "reports"
+        / f"review-assist-scoreboard-{stamp or report_stamp()}.json"
+    )
 
 
 def review_assist_scoreboard_session_markdown_path(
     project_root: Path, stamp: str | None = None
 ) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-scoreboard-{stamp or report_stamp()}.md"
+    return (
+        project_root.resolve()
+        / "reports"
+        / f"review-assist-scoreboard-{stamp or report_stamp()}.md"
+    )
 
 
 def review_assist_apply_plan_latest_json_path(project_root: Path) -> Path:
@@ -1068,13 +1167,21 @@ def review_assist_apply_plan_latest_markdown_path(project_root: Path) -> Path:
 def review_assist_apply_plan_session_json_path(
     project_root: Path, stamp: str | None = None
 ) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-apply-plan-{stamp or report_stamp()}.json"
+    return (
+        project_root.resolve()
+        / "reports"
+        / f"review-assist-apply-plan-{stamp or report_stamp()}.json"
+    )
 
 
 def review_assist_apply_plan_session_markdown_path(
     project_root: Path, stamp: str | None = None
 ) -> Path:
-    return project_root.resolve() / "reports" / f"review-assist-apply-plan-{stamp or report_stamp()}.md"
+    return (
+        project_root.resolve()
+        / "reports"
+        / f"review-assist-apply-plan-{stamp or report_stamp()}.md"
+    )
 
 
 def review_assist_report_path(
@@ -1084,7 +1191,9 @@ def review_assist_report_path(
     batch_id: str | None = None,
 ) -> Path:
     suffix = f"-{batch_id}" if batch_id else ""
-    return project_root.resolve() / "reports" / f"review-assist-{date_str or report_date()}{suffix}.md"
+    return (
+        project_root.resolve() / "reports" / f"review-assist-{date_str or report_date()}{suffix}.md"
+    )
 
 
 def render_entity_alias_review_checklist(payload: dict[str, Any]) -> str:
@@ -1192,7 +1301,11 @@ def _normalize_sample_manual_outcome(value: str) -> str:
         "skip": "pending",
     }
     for prefix, outcome in outcome_map.items():
-        if normalized == prefix or normalized.startswith(prefix + " ") or normalized.startswith(prefix + ":"):
+        if (
+            normalized == prefix
+            or normalized.startswith(prefix + " ")
+            or normalized.startswith(prefix + ":")
+        ):
             return outcome
     return normalized
 
@@ -1234,7 +1347,9 @@ def parse_entity_alias_review_sample_text(text: str, *, source_path: str) -> dic
                 current_sample["manual_outcome_raw"] = value.strip()
                 continue
             if key.strip() in {"Flags", "Labels", "Review IDs"}:
-                current_sample[normalized_key] = [part.strip() for part in value.split(",") if part.strip()]
+                current_sample[normalized_key] = [
+                    part.strip() for part in value.split(",") if part.strip()
+                ]
                 continue
             current_sample[normalized_key] = value.strip()
             continue
@@ -1468,7 +1583,9 @@ def _assistant_outcome_for_review_sample(sample: dict[str, Any]) -> tuple[str, s
         if "all-zero-overlap" in flags:
             reasons.append("Lexical overlap is absent across the sampled pairs.")
         if "has-low-specificity-labels" in flags:
-            reasons.append("At least one label looks like a heading, fragment, placeholder, or extraction residue.")
+            reasons.append(
+                "At least one label looks like a heading, fragment, placeholder, or extraction residue."
+            )
         if "has-high-score-disjoint-pairs" in flags:
             reasons.append("Queue score is still high, so contextual inspection remains warranted.")
             return "needs-context", "medium", reasons
@@ -1480,7 +1597,9 @@ def _assistant_outcome_for_review_sample(sample: dict[str, Any]) -> tuple[str, s
     if bucket == "alias-check":
         reasons.append("Lexical overlap is strong enough that rejection is not the safe default.")
         return "keep", "medium", reasons
-    reasons.append("Mixed signals remain; default to contextual review rather than automatic rejection.")
+    reasons.append(
+        "Mixed signals remain; default to contextual review rather than automatic rejection."
+    )
     return "needs-context", "low", reasons
 
 
@@ -1536,12 +1655,20 @@ def _compare_entity_alias_review_sample_summary_to_proposal(
     sample_path: str,
     proposal_path: str,
 ) -> dict[str, Any]:
-    sample_map = {_review_sample_key(sample): sample for sample in sample_summary.get("samples", [])}
-    proposal_map = {_review_sample_key(sample): sample for sample in proposal_payload.get("samples", [])}
+    sample_map = {
+        _review_sample_key(sample): sample for sample in sample_summary.get("samples", [])
+    }
+    proposal_map = {
+        _review_sample_key(sample): sample for sample in proposal_payload.get("samples", [])
+    }
 
     matched_keys = [key for key in sample_map if key in proposal_map]
-    unmatched_manual = [sample_map[key].get("anchor", key) for key in sample_map if key not in proposal_map]
-    unmatched_proposal = [proposal_map[key].get("anchor", key) for key in proposal_map if key not in sample_map]
+    unmatched_manual = [
+        sample_map[key].get("anchor", key) for key in sample_map if key not in proposal_map
+    ]
+    unmatched_proposal = [
+        proposal_map[key].get("anchor", key) for key in proposal_map if key not in sample_map
+    ]
 
     adjudicated_count = 0
     comparable_count = 0
@@ -1613,9 +1740,9 @@ def _compare_entity_alias_review_sample_summary_to_proposal(
                 summary["proposal_reject_hits"] = int(summary["proposal_reject_hits"]) + 1
             elif manual_outcome == "keep":
                 proposal_reject_false_positives += 1
-                summary["proposal_reject_false_positives"] = int(
-                    summary["proposal_reject_false_positives"]
-                ) + 1
+                summary["proposal_reject_false_positives"] = (
+                    int(summary["proposal_reject_false_positives"]) + 1
+                )
 
     for summary in confidence_summary.values():
         reject_count = int(summary["proposal_reject_hits"]) + int(
@@ -1626,7 +1753,9 @@ def _compare_entity_alias_review_sample_summary_to_proposal(
 
     agreement_rate = round(agreement_count / comparable_count, 4) if comparable_count else None
     reject_denominator = proposal_reject_hits + proposal_reject_false_positives
-    reject_precision = round(proposal_reject_hits / reject_denominator, 4) if reject_denominator else None
+    reject_precision = (
+        round(proposal_reject_hits / reject_denominator, 4) if reject_denominator else None
+    )
     return {
         "generated_at": now_iso(),
         "sample_path": sample_path,
@@ -1652,7 +1781,9 @@ def _compare_entity_alias_review_sample_summary_to_proposal(
     }
 
 
-def compare_entity_alias_review_sample_to_proposal(sample_path: Path, proposal_path: Path) -> dict[str, Any]:
+def compare_entity_alias_review_sample_to_proposal(
+    sample_path: Path, proposal_path: Path
+) -> dict[str, Any]:
     sample_summary = summarize_entity_alias_review_sample(sample_path)
     proposal_payload = load_entity_alias_review_sample_proposal(proposal_path)
     return _compare_entity_alias_review_sample_summary_to_proposal(
@@ -1688,7 +1819,8 @@ def render_entity_alias_review_sample_summary(payload: dict[str, Any]) -> str:
         bucket_line = ", ".join(
             f"{bucket}={summary['group_count']}"
             for bucket, summary in sorted(
-                payload["bucket_summary"].items(), key=lambda item: (-item[1]["group_count"], item[0])
+                payload["bucket_summary"].items(),
+                key=lambda item: (-item[1]["group_count"], item[0]),
             )
         )
         lines.append(f"Buckets: {bucket_line}")
@@ -1771,7 +1903,8 @@ def render_entity_alias_review_sample_comparison(payload: dict[str, Any]) -> str
         confidence_line = ", ".join(
             f"{level}={summary['count']}"
             for level, summary in sorted(
-                payload["confidence_summary"].items(), key=lambda item: (-int(item[1]["count"]), item[0])
+                payload["confidence_summary"].items(),
+                key=lambda item: (-int(item[1]["count"]), item[0]),
             )
         )
         lines.append(f"Confidence: {confidence_line}")
@@ -1910,13 +2043,17 @@ def _campaign_scenarios(
 ) -> list[dict[str, Any]]:
     if scenarios is not None:
         return [{**scenario} for scenario in scenarios]
-    catalog = {entry["label"]: {**entry} for entry in STANDARD_ENTITY_ALIAS_REVIEW_CAMPAIGN_SCENARIOS}
+    catalog = {
+        entry["label"]: {**entry} for entry in STANDARD_ENTITY_ALIAS_REVIEW_CAMPAIGN_SCENARIOS
+    }
     if not scenario_labels:
         return list(catalog.values())
     unknown = [label for label in scenario_labels if label not in catalog]
     if unknown:
         available = ", ".join(sorted(catalog))
-        raise ValueError(f"Unknown review campaign scenario(s): {', '.join(sorted(set(unknown)))}. Available scenarios: {available}")
+        raise ValueError(
+            f"Unknown review campaign scenario(s): {', '.join(sorted(set(unknown)))}. Available scenarios: {available}"
+        )
     selected: list[dict[str, Any]] = []
     seen: set[str] = set()
     for label in scenario_labels:
@@ -1950,7 +2087,11 @@ def _sample_packet_id_from_path(path: Path) -> str | None:
     suffix = name[len(prefix) : -3]
     if not suffix or suffix == "latest":
         return None
-    if suffix.startswith("summary-") or suffix.startswith("proposal-") or suffix.startswith("compare-"):
+    if (
+        suffix.startswith("summary-")
+        or suffix.startswith("proposal-")
+        or suffix.startswith("compare-")
+    ):
         return None
     return suffix
 
@@ -2147,7 +2288,9 @@ def build_entity_alias_review_campaign(
         "generated_at": now_iso(),
         "project_root": str(project_root.resolve()),
         "batch_size": batch_size,
-        "available_scenarios": [entry["label"] for entry in STANDARD_ENTITY_ALIAS_REVIEW_CAMPAIGN_SCENARIOS],
+        "available_scenarios": [
+            entry["label"] for entry in STANDARD_ENTITY_ALIAS_REVIEW_CAMPAIGN_SCENARIOS
+        ],
         "selected_scenarios": [scenario["label"] for scenario in selected_scenarios],
         "scenario_count": len(scenario_payloads),
         "sampled_group_count": sampled_group_count,
@@ -2200,7 +2343,9 @@ def render_entity_alias_review_campaign(payload: dict[str, Any]) -> str:
         proposal_payload = scenario.get("proposal_payload") or {}
         comparison_payload = scenario.get("comparison_payload") or {}
         scenario_precision = comparison_payload.get("proposal_reject_precision")
-        scenario_precision_text = "n/a" if scenario_precision is None else f"{scenario_precision:.2%}"
+        scenario_precision_text = (
+            "n/a" if scenario_precision is None else f"{scenario_precision:.2%}"
+        )
         lines.append(f"- {scenario['label']}: {scenario.get('description', '')}")
         lines.append(
             "  sample: "
@@ -2227,9 +2372,15 @@ def render_entity_alias_review_campaign(payload: dict[str, Any]) -> str:
             f"reject_precision={scenario_precision_text}"
         )
         if scenario.get("artifacts"):
-            lines.append(f"  sample_artifact: {scenario['artifacts']['sample']['session_markdown_path']}")
-            lines.append(f"  proposal_artifact: {scenario['artifacts']['proposal']['session_markdown_path']}")
-            lines.append(f"  compare_artifact: {scenario['artifacts']['comparison']['session_markdown_path']}")
+            lines.append(
+                f"  sample_artifact: {scenario['artifacts']['sample']['session_markdown_path']}"
+            )
+            lines.append(
+                f"  proposal_artifact: {scenario['artifacts']['proposal']['session_markdown_path']}"
+            )
+            lines.append(
+                f"  compare_artifact: {scenario['artifacts']['comparison']['session_markdown_path']}"
+            )
         lines.append("")
     return "\n".join(lines).rstrip()
 
@@ -2324,8 +2475,12 @@ def build_entity_alias_review_campaign_index(project_root: Path) -> dict[str, An
         packet_record = {
             "packet_id": packet_id,
             "sample_path": sample_key,
-            "proposal_path": proposal_entry["artifact_path"] if proposal_entry is not None else None,
-            "compare_path": comparison_entry["artifact_path"] if comparison_entry is not None else None,
+            "proposal_path": proposal_entry["artifact_path"]
+            if proposal_entry is not None
+            else None,
+            "compare_path": comparison_entry["artifact_path"]
+            if comparison_entry is not None
+            else None,
             "scenario_label": scenario_label,
             "status": packet_status,
             "total_samples": hydration_payload.get("total_samples", 0),
@@ -2370,8 +2525,8 @@ def build_entity_alias_review_campaign_index(project_root: Path) -> dict[str, An
         packet_ids: list[str] = []
         packet_paths: list[str] = []
         for scenario in payload.get("scenarios", []):
-            sample_path = (
-                ((scenario.get("artifacts") or {}).get("sample") or {}).get("session_markdown_path")
+            sample_path = ((scenario.get("artifacts") or {}).get("sample") or {}).get(
+                "session_markdown_path"
             )
             if not sample_path:
                 continue
@@ -2594,9 +2749,13 @@ def build_entity_alias_review_rollup(
     proposal_reject_false_positives = 0
 
     for packet in selected_packets:
-        selected_status_counts[packet["status"]] = selected_status_counts.get(packet["status"], 0) + 1
+        selected_status_counts[packet["status"]] = (
+            selected_status_counts.get(packet["status"], 0) + 1
+        )
         scenario_label = packet.get("scenario_label") or "legacy"
-        selected_scenario_counts[scenario_label] = selected_scenario_counts.get(scenario_label, 0) + 1
+        selected_scenario_counts[scenario_label] = (
+            selected_scenario_counts.get(scenario_label, 0) + 1
+        )
 
     for packet in compared_packets:
         comparison_payload = _load_json_artifact(Path(packet["compare_path"]))
@@ -2607,7 +2766,9 @@ def build_entity_alias_review_rollup(
         disagreement_count += int(comparison_payload.get("disagreement_count") or 0)
         proposal_reject_count += int(comparison_payload.get("proposal_reject_count") or 0)
         proposal_keep_count += int(comparison_payload.get("proposal_keep_count") or 0)
-        proposal_needs_context_count += int(comparison_payload.get("proposal_needs_context_count") or 0)
+        proposal_needs_context_count += int(
+            comparison_payload.get("proposal_needs_context_count") or 0
+        )
         proposal_reject_hits += int(comparison_payload.get("proposal_reject_hits") or 0)
         proposal_reject_false_positives += int(
             comparison_payload.get("proposal_reject_false_positives") or 0
@@ -2649,7 +2810,9 @@ def build_entity_alias_review_rollup(
 
     agreement_rate = round(agreement_count / comparable_count, 4) if comparable_count else None
     reject_denominator = proposal_reject_hits + proposal_reject_false_positives
-    reject_precision = round(proposal_reject_hits / reject_denominator, 4) if reject_denominator else None
+    reject_precision = (
+        round(proposal_reject_hits / reject_denominator, 4) if reject_denominator else None
+    )
     return {
         "generated_at": now_iso(),
         "project_root": str(project_root.resolve()),
@@ -2722,7 +2885,8 @@ def render_entity_alias_review_rollup(payload: dict[str, Any]) -> str:
         confidence_line = ", ".join(
             f"{level}={summary['count']}"
             for level, summary in sorted(
-                payload["confidence_summary"].items(), key=lambda item: (-int(item[1]["count"]), item[0])
+                payload["confidence_summary"].items(),
+                key=lambda item: (-int(item[1]["count"]), item[0]),
             )
         )
         lines.append(f"Confidence: {confidence_line}")
@@ -2786,7 +2950,9 @@ def build_entity_alias_reject_stage(
             f"Need at least {min_adjudicated} adjudicated samples; found {adjudicated_count}."
         )
     if precision is None:
-        blocked_reasons.append("Proposal reject precision is not yet measurable for the selected packets.")
+        blocked_reasons.append(
+            "Proposal reject precision is not yet measurable for the selected packets."
+        )
     elif precision < min_reject_precision:
         blocked_reasons.append(
             f"Proposal reject precision {precision:.2%} is below the required {min_reject_precision:.2%}."
@@ -2968,7 +3134,9 @@ def build_entity_alias_review_scoreboard(
                 "warning_count": packet.get("warning_count", 0),
                 "priority_bucket": priority_bucket,
                 "priority_score": priority_score,
-                "remaining_to_threshold_after_completion": max(0, remaining_to_threshold - pending_samples),
+                "remaining_to_threshold_after_completion": max(
+                    0, remaining_to_threshold - pending_samples
+                ),
             }
         )
     ranked_packets.sort(
@@ -3140,10 +3308,14 @@ def render_entity_alias_review_apply_plan(payload: dict[str, Any]) -> str:
             lines.append(f"- {reason}")
     lines.append("Snapshots:")
     for entry in payload.get("snapshot_contract", {}).get("pre_apply_snapshots", []):
-        lines.append(f"- {entry['label']}: {entry['source_path']} -> {entry['planned_snapshot_path']}")
+        lines.append(
+            f"- {entry['label']}: {entry['source_path']} -> {entry['planned_snapshot_path']}"
+        )
     lines.append("Rollback:")
-    for step in payload.get("snapshot_contract", {}).get("rollback_contract", {}).get(
-        "post_restore_steps", []
+    for step in (
+        payload.get("snapshot_contract", {})
+        .get("rollback_contract", {})
+        .get("post_restore_steps", [])
     ):
         lines.append(f"- {step}")
     return "\n".join(lines).rstrip()
