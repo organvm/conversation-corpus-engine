@@ -16,7 +16,7 @@ exec >> "${LOGDIR}/local-session-refresh.log" 2>&1
 echo "=== Local-session refresh: $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
 
 FAILURES=0
-PROVIDER_TIMEOUT=2700  # 45 minutes per provider
+PROVIDER_TIMEOUT=1200  # 20 minutes per provider
 
 # ChatGPT local-session
 echo "--- ChatGPT local-session ---"
