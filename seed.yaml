@@ -85,6 +85,15 @@ produces:
   - type: near-duplicates
     signal_class: VALIDATION_RECORD
     consumers: [ORGAN-I]
+  - type: conversation-evidence
+    signal_class: VALIDATION_RECORD
+    consumers: [ORGAN-III]
+  - type: curated-conversations
+    signal_class: ANNOTATED_CORPUS
+    consumers: [ORGAN-III]
+  - type: corpus-deployment
+    signal_class: STATE_MODEL
+    consumers: [ORGAN-III]
 
 consumes:
   - type: provider-exports
