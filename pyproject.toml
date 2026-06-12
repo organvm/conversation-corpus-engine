@@ -14,7 +14,7 @@ dependencies = []
 Repository = "https://github.com/organvm-i-theoria/conversation-corpus-engine"
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "ruff>=0.4"]
+dev = ["pytest>=9.0.3", "ruff>=0.4"]
 
 [project.scripts]
 cce = "conversation_corpus_engine.cli:main"
