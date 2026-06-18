@@ -305,6 +305,9 @@
           "type": "object"
         }
       }
+    },
+    "commercial_awareness": {
+      "type": "object"
     }
   }
 }

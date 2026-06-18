@@ -70,6 +70,165 @@ CLI_SURFACES = [
     },
 ]
 
+COMMERCIAL_SPEC_REFERENCES = [
+    {
+        "id": "cce-commercial-architecture-design",
+        "title": "CCE Commercial Architecture - Design Specification",
+        "relative_path": "docs/superpowers/specs/2026-03-31-cce-commercial-architecture-design.md",
+        "sections": [
+            "Income Surface",
+            "Concentric Rings",
+            "Application Pipeline Symbiosis",
+            "Gate Contract",
+        ],
+    },
+    {
+        "id": "cce-commercial-architecture-expansion",
+        "title": "CCE Commercial Architecture - Expansion",
+        "relative_path": "docs/superpowers/specs/2026-03-31-cce-commercial-architecture-expansion.md",
+        "sections": [
+            "Knowledge Intelligence Stack",
+            "Five Compounding Loops",
+            "ORGAN-III Delivery Vehicles",
+            "Loop Activation by Horizon",
+        ],
+    },
+]
+
+COMMERCIAL_RINGS = [
+    {
+        "ring": 0,
+        "name": "Engine",
+        "surface": "CLI engine and open-source package",
+        "revenue_model": "free-open-source",
+        "horizon": "now",
+    },
+    {
+        "ring": 1,
+        "name": "SaaS web app",
+        "surface": "Search and recall across providers",
+        "revenue_model": "professional-subscription",
+        "horizon": "H3",
+    },
+    {
+        "ring": 2,
+        "name": "Platform API and MCP server",
+        "surface": "Schema contracts, API access, and MCP context",
+        "revenue_model": "builder-usage",
+        "horizon": "H1-H3",
+    },
+    {
+        "ring": 3,
+        "name": "Cross-module premium",
+        "surface": "Narratological lenses and knowledge intelligence stack",
+        "revenue_model": "premium-subscription",
+        "horizon": "H4",
+    },
+    {
+        "ring": 4,
+        "name": "Enterprise services",
+        "surface": "Governed corpus deployment and custom adapters",
+        "revenue_model": "enterprise-services",
+        "horizon": "H4",
+    },
+]
+
+PIPELINE_BRIDGES = [
+    {
+        "pipeline_label": "Pillar 1",
+        "pipeline_surface": "jobs",
+        "income_band": "I",
+        "horizon": "H1-H3",
+        "cce_surface": "domain expertise",
+        "cce_commercial_effect": "Builds market evidence for CCE enterprise pain.",
+    },
+    {
+        "pipeline_label": "Pillar 2",
+        "pipeline_surface": "grants",
+        "income_band": "II",
+        "horizon": "H1-H2",
+        "cce_surface": "research credibility",
+        "cce_commercial_effect": "Validates CCE as a research-grade corpus system.",
+    },
+    {
+        "pipeline_label": "Pillar 3",
+        "pipeline_surface": "consulting",
+        "income_band": "III",
+        "horizon": "H3",
+        "cce_surface": "CCE Ring 4 enterprise services",
+        "cce_commercial_effect": "Turns pipeline engagements into governed CCE deployments.",
+    },
+    {
+        "pipeline_label": "Identity #9",
+        "pipeline_surface": "founder-operator",
+        "income_band": "III-IV",
+        "horizon": "H3-H5",
+        "cce_surface": "commercial persona",
+        "cce_commercial_effect": "Frames the operator as the buyer-facing CCE founder.",
+    },
+    {
+        "pipeline_label": "Identity #5",
+        "pipeline_surface": "independent-engineer",
+        "income_band": "I-III",
+        "horizon": "H1-H4",
+        "cce_surface": "engineering credibility",
+        "cce_commercial_effect": "Makes implementation proof legible to employers and clients.",
+    },
+    {
+        "pipeline_label": "SGO research",
+        "pipeline_surface": "research-publication",
+        "income_band": "II-IV",
+        "horizon": "H2-H5",
+        "cce_surface": "marketing and omega research",
+        "cce_commercial_effect": "Turns conversation federation research into public proof.",
+    },
+]
+
+REVENUE_EVOLUTION = [
+    {
+        "horizon": "H1-H2",
+        "pipeline_role": "earn now through labor and awards",
+        "cce_role": "package the engine and prove adoption",
+        "commercial_band": "I-II",
+    },
+    {
+        "horizon": "H3",
+        "pipeline_role": "bridge consulting demand into CCE services",
+        "cce_role": "launch recurring search/API surfaces",
+        "commercial_band": "III-IV",
+    },
+    {
+        "horizon": "H4",
+        "pipeline_role": "source enterprise and research relationships",
+        "cce_role": "sell governed deployments and premium knowledge loops",
+        "commercial_band": "III-IV",
+    },
+    {
+        "horizon": "H5",
+        "pipeline_role": "make jobs optional",
+        "cce_role": "operate as the studio revenue engine",
+        "commercial_band": "IV-V",
+    },
+]
+
+COMMERCIAL_GATES = [
+    {
+        "id": "REP-001",
+        "check": "At least one mechanism emits INTERFACE_CONTRACT.",
+        "evidence": "ORGAN-II surface exists and passes validation.",
+    },
+    {
+        "id": "REP-002",
+        "check": "Payment metabolism can process TRANSACTION signals.",
+        "evidence": "Stripe or equivalent billing integration is functional.",
+    },
+    {
+        "id": "REP-003",
+        "check": "At least one paying customer exists.",
+        "evidence": "Revenue status is live in the commercial registry.",
+    },
+]
+
 
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -105,6 +264,92 @@ def surface_bundle_markdown_path(project_root: Path) -> Path:
 
 def optional_json(path: Path) -> Any:
     return load_json(path, default=None)
+
+
+def build_commercial_awareness_payload() -> dict[str, Any]:
+    source_specs = []
+    for spec in COMMERCIAL_SPEC_REFERENCES:
+        relative_path = spec["relative_path"]
+        source_specs.append(
+            {
+                "id": spec["id"],
+                "title": spec["title"],
+                "relative_path": relative_path,
+                "path": str((REPO_ROOT / relative_path).resolve()),
+                "sections": list(spec["sections"]),
+            },
+        )
+    return {
+        "contract_name": "conversation-corpus-engine-commercial-awareness-v1",
+        "contract_version": 1,
+        "source_specs": source_specs,
+        "relationship": {
+            "cce_repo": "organvm-i-theoria/conversation-corpus-engine",
+            "pipeline_repo": "4444J99/application-pipeline",
+            "relationship_type": "symbiotic-income-surface",
+            "same_income_equation": True,
+            "summary": (
+                "Pipeline labor, awards, consulting, and founder identity earn now while "
+                "CCE matures into reusable product, API, and enterprise revenue."
+            ),
+        },
+        "commercial_position": {
+            "organ": "ORGAN-I",
+            "mechanism": "mneme--remember",
+            "system_role": "knowledge intelligence engine",
+            "revenue_model": "open-source engine with SaaS, API, premium, and enterprise rings",
+            "revenue_status": "architecture-defined",
+        },
+        "consumer_contract": {
+            "intended_consumers": [
+                "application-pipeline",
+                "conversation-corpus--surfaces",
+                "conversation-corpus--product",
+                "commerce--meta",
+                "organvm-mcp-server",
+            ],
+            "pipeline_consumption": (
+                "Use pipeline_bridges and revenue_evolution to align jobs, grants, "
+                "consulting, founder positioning, and research output with CCE maturity."
+            ),
+            "surface_signal": "STATE_MODEL + VALIDATION_RECORD",
+            "interface_signal": "INTERFACE_CONTRACT",
+            "flow_constraint": (
+                "Provider exports -> CCE -> ORGAN-II surfaces -> ORGAN-III product. "
+                "The commercial path must not skip the ORGAN-II interface bridge."
+            ),
+        },
+        "signal_chain": [
+            {
+                "stage": "provider_exports",
+                "organ": "external",
+                "emits": "ARCHIVE_PACKET",
+                "consumed_by": "conversation-corpus-engine",
+            },
+            {
+                "stage": "conversation-corpus-engine",
+                "organ": "ORGAN-I",
+                "emits": "ANNOTATED_CORPUS, VALIDATION_RECORD, STATE_MODEL",
+                "consumed_by": "conversation-corpus--surfaces",
+            },
+            {
+                "stage": "conversation-corpus--surfaces",
+                "organ": "ORGAN-II",
+                "emits": "INTERFACE_CONTRACT",
+                "consumed_by": "conversation-corpus--product",
+            },
+            {
+                "stage": "conversation-corpus--product",
+                "organ": "ORGAN-III",
+                "emits": "billing STATE_MODEL",
+                "consumed_by": "customers and commercial governance",
+            },
+        ],
+        "commercial_rings": [dict(item) for item in COMMERCIAL_RINGS],
+        "pipeline_bridges": [dict(item) for item in PIPELINE_BRIDGES],
+        "revenue_evolution": [dict(item) for item in REVENUE_EVOLUTION],
+        "activation_gates": [dict(item) for item in COMMERCIAL_GATES],
+    }
 
 
 def registry_snapshot(project_root: Path) -> dict[str, Any]:
@@ -202,6 +447,8 @@ def latest_provider_refreshes(project_root: Path) -> dict[str, Any]:
 
 def render_surface_manifest(payload: dict[str, Any]) -> str:
     registry = payload.get("registry") or {}
+    commercial = payload.get("commercial_awareness") or {}
+    relationship = commercial.get("relationship") or {}
     lines = [
         "# Surface Manifest",
         "",
@@ -226,11 +473,25 @@ def render_surface_manifest(payload: dict[str, Any]) -> str:
         lines.append(
             f"- {item['provider']}: readiness={item.get('readiness_status')} next={item.get('next_command')}",
         )
+    if commercial:
+        lines.extend(
+            [
+                "",
+                "## Commercial Awareness",
+                "",
+                f"- Relationship: {relationship.get('relationship_type') or 'n/a'}",
+                f"- Pipeline repo: {relationship.get('pipeline_repo') or 'n/a'}",
+                f"- Commercial rings: {len(commercial.get('commercial_rings') or [])}",
+                f"- Pipeline bridges: {len(commercial.get('pipeline_bridges') or [])}",
+            ],
+        )
     return "\n".join(lines)
 
 
 def render_mcp_context(payload: dict[str, Any]) -> str:
     summary = payload.get("summary") or {}
+    commercial = payload.get("commercial_awareness") or {}
+    relationship = commercial.get("relationship") or {}
     lines = [
         "# MCP Context",
         "",
@@ -247,6 +508,17 @@ def render_mcp_context(payload: dict[str, Any]) -> str:
     for item in payload.get("providers") or []:
         lines.append(
             f"- {item['provider']}: {item.get('overall_state')} next={item.get('next_command')}",
+        )
+    if commercial:
+        lines.extend(
+            [
+                "",
+                "## Commercial Awareness",
+                "",
+                f"- CCE repo: {relationship.get('cce_repo') or 'n/a'}",
+                f"- Pipeline repo: {relationship.get('pipeline_repo') or 'n/a'}",
+                f"- Same income equation: {'yes' if relationship.get('same_income_equation') else 'no'}",
+            ],
         )
     return "\n".join(lines)
 
@@ -345,6 +617,7 @@ def build_surface_manifest(
                 for provider in sorted(PROVIDER_CONFIG)
             },
         },
+        "commercial_awareness": build_commercial_awareness_payload(),
     }
 
 
@@ -425,6 +698,7 @@ def build_mcp_context_payload(
             "items": open_review_items[:25],
         },
         "schema_catalog": list_schemas(),
+        "commercial_awareness": build_commercial_awareness_payload(),
     }
 
 
