@@ -28,6 +28,28 @@ It does not own raw intake routing or system-wide discovery contracts. Those bel
 pip install -e ".[dev]"
 ```
 
+For tool-host integration:
+
+```bash
+pipx install "conversation-corpus-engine[mcp]"
+cce-mcp --project-root /path/to/project
+```
+
+The `mcp` extra is dependency-free today; it enables the install target and exposes
+the stdio MCP entry point. A Claude Desktop-style server entry can point directly at
+the command:
+
+```json
+{
+  "mcpServers": {
+    "conversation-corpus-engine": {
+      "command": "cce-mcp",
+      "args": ["--project-root", "/path/to/project"]
+    }
+  }
+}
+```
+
 ## License
 
 MIT
@@ -65,7 +87,18 @@ cce evaluation run --root /path/to/corpus --seed --json
 cce review queue --project-root /path/to/project
 cce review resolve federated-family-merge-... --decision accepted --note "same family"
 cce source freshness /path/to/corpus
+cce-mcp --project-root /path/to/project
 ```
+
+## MCP Tools
+
+`cce-mcp` serves MCP over stdio and never writes non-protocol output to stdout. It
+currently exposes:
+
+- `cce_search`: search a registered or direct corpus root and return a grounded
+  answer, citations, and structured top-hit metadata.
+- `cce_list_corpora`: list registered project corpora.
+- `cce_surface_context`: build the MCP-facing project context payload.
 
 ## Layout
 
