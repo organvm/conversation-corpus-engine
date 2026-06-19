@@ -43,6 +43,7 @@ class SchemaValidationTests(unittest.TestCase):
         self.assertEqual(
             names,
             [
+                "commercial-awareness",
                 "corpus-candidate",
                 "corpus-contract",
                 "import-audit",

@@ -19,6 +19,7 @@ It owns:
 - provider refresh orchestration across import, evaluation, candidate staging, and optional promotion
 - publishable JSON schemas and repo-native artifact validation
 - Meta/MCP-facing surface manifests and export bundles
+- commercial-awareness metadata for pipeline and surface consumers
 
 It does not own raw intake routing or system-wide discovery contracts. Those belong in Meta integrations such as `alchemia-ingestvm`, `schema-definitions`, `organvm-engine`, and `organvm-mcp-server`.
 

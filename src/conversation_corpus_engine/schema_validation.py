@@ -5,6 +5,10 @@ from pathlib import Path
 from typing import Any
 
 SCHEMA_CATALOG = {
+    "commercial-awareness": {
+        "filename": "commercial-awareness.schema.json",
+        "description": "Commercial awareness bridge between CCE export surfaces and pipeline consumers.",
+    },
     "corpus-contract": {
         "filename": "corpus-contract.schema.json",
         "description": "Canonical corpus contract manifest emitted under corpus/contract.json.",

@@ -17,7 +17,7 @@ from conversation_corpus_engine.governance_replay import (
 from conversation_corpus_engine.import_markdown_document_corpus import (
     import_markdown_document_corpus,
 )
-from conversation_corpus_engine.schema_validation import validate_json_file
+from conversation_corpus_engine.schema_validation import validate_json_file, validate_payload
 from conversation_corpus_engine.source_policy import set_source_policy
 from conversation_corpus_engine.surface_exports import (
     build_mcp_context_payload,
@@ -137,14 +137,43 @@ class SurfaceExportsTests(unittest.TestCase):
                 "surface-bundle",
                 surface_bundle_json_path(project_root),
             )
+            commercial_result = validate_payload(
+                "commercial-awareness",
+                manifest["commercial_awareness"],
+            )
+            commercial_schema_names = {item["name"] for item in manifest["schemas"]}
+            bridge_surfaces = {
+                item["pipeline_surface"]: item
+                for item in manifest["commercial_awareness"]["pipeline_bridges"]
+            }
 
             self.assertEqual(manifest["registry"]["default_corpus_id"], "perplexity-history-memory")
+            self.assertEqual(
+                manifest["commercial_awareness"]["relationship"]["pipeline_repo"],
+                "4444J99/application-pipeline",
+            )
+            self.assertEqual(
+                context["commercial_awareness"]["relationship"]["relationship_type"],
+                "symbiotic-income-surface",
+            )
+            self.assertTrue(
+                manifest["commercial_awareness"]["relationship"]["same_income_equation"]
+            )
+            self.assertIn("commercial-awareness", commercial_schema_names)
+            self.assertEqual(
+                bridge_surfaces["consulting"]["cce_surface"],
+                "CCE Ring 4 enterprise services",
+            )
+            self.assertTrue(
+                Path(manifest["commercial_awareness"]["source_specs"][0]["path"]).exists()
+            )
             self.assertEqual(context["summary"]["active_corpus_count"], 1)
             self.assertEqual(context["summary"]["provider_count"], 8)
             self.assertTrue(bundle["summary"]["valid"])
             self.assertTrue(manifest_result["valid"], manifest_result["errors"])
             self.assertTrue(context_result["valid"], context_result["errors"])
             self.assertTrue(bundle_result["valid"], bundle_result["errors"])
+            self.assertTrue(commercial_result["valid"], commercial_result["errors"])
 
 
 if __name__ == "__main__":
