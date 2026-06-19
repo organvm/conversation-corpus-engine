@@ -23,6 +23,12 @@ It owns:
 
 It does not own raw intake routing or system-wide discovery contracts. Those belong in Meta integrations such as `alchemia-ingestvm`, `schema-definitions`, `organvm-engine`, and `organvm-mcp-server`.
 
+## Commercial Strategy Linkage
+
+CCE is the institutional memory and product-scale side of the ORGANVM income surface. Its commercial architecture is tracked in [`docs/superpowers/specs/2026-03-31-cce-commercial-architecture-design.md`](docs/superpowers/specs/2026-03-31-cce-commercial-architecture-design.md) and [`docs/superpowers/specs/2026-03-31-cce-commercial-architecture-expansion.md`](docs/superpowers/specs/2026-03-31-cce-commercial-architecture-expansion.md).
+
+The personal-capacity counterpart is [`4444J99/application-pipeline`](https://github.com/4444J99/application-pipeline), whose jobs, grants/residencies, and consulting tracks supply near-term income, market feedback, and enterprise-service leads for CCE Ring 4. This backlink closes `IRF-CCE-038` on the CCE side: the two repos should stay commercially aware of one another rather than treating pipeline revenue and CCE product revenue as separate strategies.
+
 ## Install
 
 ```bash
