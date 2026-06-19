@@ -723,10 +723,19 @@ def main() -> None:
             source_corpus=args.source_corpus,
             dry_run=args.dry_run,
         )
-        if args.write:
+        if args.write and not args.dry_run:
             artifacts = write_persona_extract_artifacts(args.project_root, payload)
             payload["artifacts_written"] = [str(p) for p in artifacts]
-        print(json.dumps(payload, indent=2))
+        if args.json:
+            print(json.dumps(payload, indent=2))
+        else:
+            print(f"persona: {payload['persona_id']}  status: {payload['status']}")
+            print(f"  archetype: {payload.get('archetypal_pattern') or '-'}")
+            print(f"  yearning: {payload.get('ideal_yearning') or '-'}")
+            print(f"  lexicon terms: {len(payload.get('vocabulary') or [])}")
+            print(f"  forbidden terms: {len(payload.get('forbidden_terms') or [])}")
+            for path in payload.get("artifacts_written", []):
+                print(f"  wrote: {path}")
         return
 
     if args.group == "corpus" and args.action == "register":
