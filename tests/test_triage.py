@@ -185,9 +185,11 @@ class EntityAliasReviewCampaignTests(unittest.TestCase):
             with (
                 patch(
                     "conversation_corpus_engine.triage.build_entity_alias_review_assist",
-                    side_effect=lambda project_root, batch_size, relation_filters=None, source_pair=None, anchor_contains=None: {
-                        "scenario_label": anchor_contains
-                    },
+                    side_effect=lambda project_root,
+                    batch_size,
+                    relation_filters=None,
+                    source_pair=None,
+                    anchor_contains=None: {"scenario_label": anchor_contains},
                 ),
                 patch(
                     "conversation_corpus_engine.triage.filter_entity_alias_review_assist_groups",
@@ -195,9 +197,10 @@ class EntityAliasReviewCampaignTests(unittest.TestCase):
                 ),
                 patch(
                     "conversation_corpus_engine.triage.sample_entity_alias_review_assist_groups",
-                    side_effect=lambda payload, sample_groups, sample_batches=None, batch_offset=0: (
-                        sample_payloads[str(payload["scenario_label"])]
-                    ),
+                    side_effect=lambda payload,
+                    sample_groups,
+                    sample_batches=None,
+                    batch_offset=0: (sample_payloads[str(payload["scenario_label"])]),
                 ),
             ):
                 payload = build_entity_alias_review_campaign(
@@ -296,9 +299,11 @@ class EntityAliasReviewCampaignTests(unittest.TestCase):
             with (
                 patch(
                     "conversation_corpus_engine.triage.build_entity_alias_review_assist",
-                    side_effect=lambda project_root, batch_size, relation_filters=None, source_pair=None, anchor_contains=None: {
-                        "scenario_label": anchor_contains
-                    },
+                    side_effect=lambda project_root,
+                    batch_size,
+                    relation_filters=None,
+                    source_pair=None,
+                    anchor_contains=None: {"scenario_label": anchor_contains},
                 ),
                 patch(
                     "conversation_corpus_engine.triage.filter_entity_alias_review_assist_groups",
@@ -306,9 +311,10 @@ class EntityAliasReviewCampaignTests(unittest.TestCase):
                 ),
                 patch(
                     "conversation_corpus_engine.triage.sample_entity_alias_review_assist_groups",
-                    side_effect=lambda payload, sample_groups, sample_batches=None, batch_offset=0: (
-                        sample_payload
-                    ),
+                    side_effect=lambda payload,
+                    sample_groups,
+                    sample_batches=None,
+                    batch_offset=0: (sample_payload),
                 ),
             ):
                 payload = build_entity_alias_review_campaign(

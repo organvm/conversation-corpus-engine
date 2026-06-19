@@ -30,9 +30,7 @@ class PersonaExtractTests(unittest.TestCase):
 
     def test_missing_source_path(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
-            payload = extract_persona_lexicon(
-                Path(tmp), "rob", source_corpus=Path(tmp) / "nope"
-            )
+            payload = extract_persona_lexicon(Path(tmp), "rob", source_corpus=Path(tmp) / "nope")
         self.assertEqual(payload["status"], "VACUUM (SOURCE NOT FOUND)")
 
     def test_extracts_human_persona_lexicon(self) -> None:
@@ -134,12 +132,8 @@ class PersonaExtractTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "transcripts"
             source.mkdir()
-            _write_transcript(
-                source, "s.json", [{"role": "user", "text": "alpha beta gamma"}]
-            )
-            payload = extract_persona_lexicon(
-                Path(tmp), "rob", source_corpus=source, dry_run=True
-            )
+            _write_transcript(source, "s.json", [{"role": "user", "text": "alpha beta gamma"}])
+            payload = extract_persona_lexicon(Path(tmp), "rob", source_corpus=source, dry_run=True)
         self.assertEqual(payload["status"], "PREVIEW")
         self.assertTrue(payload["dry_run"])
 
@@ -150,15 +144,15 @@ class PersonaExtractTests(unittest.TestCase):
             payload["timestamp"] = "20260619"
             artifacts = write_persona_extract_artifacts(project_root, payload)
 
-        self.assertEqual(len(artifacts), 2)
-        json_path, markdown_path = artifacts
-        self.assertTrue(json_path.exists())
-        self.assertTrue(markdown_path.exists())
-        self.assertEqual(json_path.suffix, ".json")
-        self.assertEqual(markdown_path.suffix, ".md")
-        reloaded = json.loads(json_path.read_text(encoding="utf-8"))
-        self.assertEqual(reloaded["persona_id"], "claude")
-        self.assertIn("persona-extract-claude-20260619", json_path.name)
+            self.assertEqual(len(artifacts), 2)
+            json_path, markdown_path = artifacts
+            self.assertTrue(json_path.exists())
+            self.assertTrue(markdown_path.exists())
+            self.assertEqual(json_path.suffix, ".json")
+            self.assertEqual(markdown_path.suffix, ".md")
+            reloaded = json.loads(json_path.read_text(encoding="utf-8"))
+            self.assertEqual(reloaded["persona_id"], "claude")
+            self.assertIn("persona-extract-claude-20260619", json_path.name)
 
     def test_render_markdown_contains_sections(self) -> None:
         payload = {
@@ -167,9 +161,7 @@ class PersonaExtractTests(unittest.TestCase):
             "archetypal_pattern": "Seeker",
             "yearning_method": "derived",
             "ideal_yearning": "To explore.",
-            "vocabulary": [
-                {"term": "lattice", "count": 3, "salience": 5.0, "distinctive": True}
-            ],
+            "vocabulary": [{"term": "lattice", "count": 3, "salience": 5.0, "distinctive": True}],
             "forbidden_terms": [{"term": "proceed", "count": 1, "context": "I cannot proceed"}],
         }
         markdown = render_persona_extract_markdown(payload)
