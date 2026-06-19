@@ -359,8 +359,12 @@ class CceMcpServer:
                 try:
                     return self.response(request_id, self.call_tool(tool_name, arguments))
                 except KeyError:
-                    return self.error_response(request_id, JSONRPC_INVALID_PARAMS, f"Unknown tool: {tool_name}")
-            return self.error_response(request_id, JSONRPC_METHOD_NOT_FOUND, f"Unknown method: {method}")
+                    return self.error_response(
+                        request_id, JSONRPC_INVALID_PARAMS, f"Unknown tool: {tool_name}"
+                    )
+            return self.error_response(
+                request_id, JSONRPC_METHOD_NOT_FOUND, f"Unknown method: {method}"
+            )
         except Exception as exc:  # pragma: no cover - defensive stdio server boundary
             print(f"{SERVER_NAME}: internal error: {exc}", file=sys.stderr)
             return self.error_response(request_id, JSONRPC_INTERNAL_ERROR, "Internal server error")
