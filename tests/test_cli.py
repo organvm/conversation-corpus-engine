@@ -1139,12 +1139,7 @@ def test_main_review_campaign_rollup_json_mode_prints_payload(
     monkeypatch.setattr(
         MODULE,
         "build_entity_alias_review_rollup",
-        lambda project_root,
-        *,
-        packet_statuses=None,
-        scenario_labels=None,
-        packet_ids=None,
-        campaign_ids=None: {
+        lambda project_root, *, packet_statuses=None, scenario_labels=None, packet_ids=None, campaign_ids=None: {
             "project_root": str(project_root),
             "selected_packet_count": 1,
             "filters": {
@@ -1375,14 +1370,7 @@ def test_main_review_apply_plan_json_mode_prints_payload(
     monkeypatch.setattr(
         MODULE,
         "build_entity_alias_review_apply_plan",
-        lambda project_root,
-        *,
-        packet_statuses=None,
-        scenario_labels=None,
-        packet_ids=None,
-        campaign_ids=None,
-        min_reject_precision,
-        min_adjudicated: {
+        lambda project_root, *, packet_statuses=None, scenario_labels=None, packet_ids=None, campaign_ids=None, min_reject_precision, min_adjudicated: {
             "project_root": str(project_root),
             "apply_status": "disabled",
             "filters": {
