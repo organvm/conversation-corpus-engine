@@ -26,7 +26,7 @@ Repository = "https://github.com/organvm-i-theoria/conversation-corpus-engine"
 Issues = "https://github.com/organvm-i-theoria/conversation-corpus-engine/issues"
 
 [project.optional-dependencies]
-dev = ["pytest>=9.0.3", "ruff>=0.15.8,<0.16"]
+dev = ["pytest>=9.0.3", "ruff>=0.15.8,<0.16", "mypy>=1.10.0"]
 mcp = []
 
 [project.scripts]
@@ -56,4 +56,22 @@ ignore = [
     "PLR0913",
     "PLR0915",
     "PLR2004",
+]
+
+[tool.mypy]
+ignore_missing_imports = true
+exclude = [
+    "src/conversation_corpus_engine/answering\\.py",
+    "src/conversation_corpus_engine/cli\\.py",
+    "src/conversation_corpus_engine/corpus_candidates\\.py",
+    "src/conversation_corpus_engine/evaluation\\.py",
+    "src/conversation_corpus_engine/federated_canon\\.py",
+    "src/conversation_corpus_engine/federation\\.py",
+    "src/conversation_corpus_engine/governance_policy\\.py",
+    "src/conversation_corpus_engine/import_chatgpt_export_corpus\\.py",
+    "src/conversation_corpus_engine/import_claude_export_corpus\\.py",
+    "src/conversation_corpus_engine/mcp_server\\.py",
+    "src/conversation_corpus_engine/surface_exports\\.py",
+    "src/conversation_corpus_engine/triage\\.py",
+    "tests"
 ]
